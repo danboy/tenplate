@@ -1,0 +1,34 @@
+!one_column ||= (!grid_width/1.6180339887498948482em)
+body.one_column
+  #canvas
+    .column
+      :width= !grid_width -4em
+      :padding 2em
+
+body.two_column
+  #canvas
+    .column
+      :width= (!grid_width/2) -4em
+      :margin 2em
+
+body.thirds
+  #canvas
+    .two_thirds
+      :width= ((!grid_width/3)*2) -3em
+      :margin 2em
+      :float left
+      &.left
+        :margin-right 1em
+    .one_third
+      :width= (!grid_width/3) -3em
+      :margin 2em
+      :float left
+      &.right
+        :margin-left 1em
+body.golden
+  .main
+    :width= !one_column-(!line_height*2)
+    :padding= !line_height
+  .rail
+    :width= (!grid_width-!one_column)-(!line_height*2)
+    :padding= !line_height

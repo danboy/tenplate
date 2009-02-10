@@ -1,0 +1,123 @@
+!font_color ||= #333
+!font_family ||= "helvetica,arial,sans-serif"
+!page_color ||= #FFF
+!link_color ||= #369
+!line_height ||= 1.8em
+!grid_width ||= 96em
+
+html
+  :color= !font_color
+  :background = !page_color
+  :font-size 16px
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td
+  :margin 0
+  :padding 0
+
+table
+  :border-collapse collapse
+  :border-spacing 0
+
+fieldset, img
+  :border 0
+
+address,caption,cite,code,dfn,em,strong,th,var
+  :style normal
+  :weight normal
+
+li
+  :list-style none
+
+caption, th
+  :text-align left
+
+h1,h2,h3,h4,h5,h6
+  :font-size inherit
+  :font-weight normal
+
+q:before, q:after
+  :content ''
+
+abbr,acronym
+  :border 0
+  :font-variant normal
+
+sup
+  :vertical-align text-top
+sub
+  :vertical-align text-bottom
+
+a
+  :outline none
+  :color= !link_color
+  :text-decoration none
+a:hover
+  :text-decoration underline
+
+body
+  :font-size 62.5%
+  :color= !font_color
+  :font-family= !font_family
+  :line-height= !line_height
+  h1,
+  h2,
+  h3,
+  h4
+    :font-weight bold
+  h1
+    :font-size 2em
+    :margin-bottom= !line_height/2em
+  h2
+    :font-size 1.8em
+    :margin-bottom= !line_height/1.8em
+  h3
+    :font-size 1.6em
+    :margin-bottom= -(!line_height/1.6em)
+  h4
+    :font-size 1.4em
+    :margin-top= !line_height/1.4em
+    :margin-bottom= -(!line_height/1.4em)
+  p,
+  ul,
+  ol
+    :display block
+    :font-size 1.4em
+    :margin 0
+    li
+      :margin= !line_height/1.4em 0
+  pre.example
+    :border 1px solid #900
+    :background #333
+    :color #EEE
+    :font-size 1.4em
+    :margin= (!line_height/1.4em)-.1em 0
+    :display block
+    :white-space pre-wrap;       /* css-3 */
+    :white-space -moz-pre-wrap  /* Mozilla, since 1999 */
+    :white-space -pre-wrap      /* Opera 4-6 */
+    :white-space -o-pre-wrap    /* Opera 7 */
+    :word-wrap break-word       /* Internet Explorer 5.5+ */
+    code
+      :margin 0
+      :padding 0
+      :display inline-block
+  #notices
+    :width auto
+    :background-color #FFE6D4
+    :font-size 1.6em
+    :padding 0
+    :border-bottom 1px solid #999
+    .flash-notice
+      :padding 1em
+      :background-color #90ee90
+      :color #666
+    .flash-error
+      :background-color #b73b29
+      :color #DDD
+      :padding 1em
+  #canvas
+    :width= !grid_width
+    :margin 0 auto
+    :background url(/images/grid.png)
+
+@import forms.sass
+@import grid.sass

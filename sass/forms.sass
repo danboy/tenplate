@@ -1,0 +1,109 @@
+form
+  :font-size 1em
+  :text-align left
+  :padding 0 1.5em
+  input,
+  textarea,
+  select
+    :font-family inherit
+    :font-size 1.2em
+    :height= !line_height-.2em
+    :font-weight inherit
+    :margin= (!line_height/1.4em) 0
+    :border= .1em solid !link_color
+  label
+    :font-weight bold
+    :font-size 1.4em
+    :clear both
+    :display block
+    :margin= 0 0 (-(!line_height/1.4em))
+  label.checkbox
+    :display inline-block
+    :margin= (!line_height/1.4em) 0
+  input[type="checkbox"]
+    :display inline-block
+  input[type="submit"],
+  input[type="button"]
+    :height= !line_height
+
+fieldset
+  :margin= (!line_height/1.4em) 0 (!line_height/1.4em) (-1.5em)
+  :padding= 0 !line_height
+  :border 1px solid #ccc
+  legend
+    :font-size 1.4em
+    :font-weight bold
+  fieldset
+    :margin 1.5em
+
+form.justify
+  fieldset
+    :margin 1em 0 1.5em -2.5em
+    :padding 1.5em
+    :border 1px solid #ccc
+    label
+      :padding 0
+      :margin .5em -30% 0 .5em
+    fieldset
+      :margin 1.5em
+  label
+    :width 30%
+    :display inline-block
+    :margin .5em -30.8% 0 0
+    :text-align left
+    :color #333
+  input
+    :padding .2em 0
+    :margin 0.5em 0 0
+    :display inline-block
+    &[type="text"]:focus,
+    &[type="password"]:focus
+      :border 1px solid #FFCC66
+      :background #FFF
+  input
+    &[type="text"], &[type="password"]
+      :border 1px solid #CCC
+      :background #EEE
+      :margin 0 0 0 30%
+      :width 60%
+    &[type="submit"]
+    &[type="checkbox"]
+      :margin 0 0 0 30%
+    &[type="radio"]
+    &[type="file"]
+      :border 1px solid #CCC
+      :background #EEE
+    &[type="hidden"]
+      :height 0
+      :width 0
+      :margin 0
+      :padding 0
+  input.clear
+    :clear right
+    :display block
+  textarea
+    :border 1px solid #CCC
+    :background #EEE
+    :margin 0 0 0 30%
+    :width 60%
+    :height 4em
+    &:focus
+      :background #FFF
+      :border-color= !link_color
+  select
+    :margin 0 0 0 30%
+
+ul,
+ol
+  li
+    label
+      :width auto
+      :font-size 1em
+
+div
+  .multi_select,
+  .read_only
+    :margin 0 0 0 30%
+    :display inline-block
+    select
+      :margin 0
