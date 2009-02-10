@@ -6,35 +6,52 @@ form
   textarea,
   select
     :font-family inherit
-    :font-size 1.2em
+    :font-size= !font_size
     :height= !line_height-.2em
     :font-weight inherit
-    :margin= (!line_height/1.4em) 0
+    :margin= (!line_height/!font_size) 0
     :border= .1em solid !link_color
   label
     :font-weight bold
-    :font-size 1.4em
+    :font-size= !font_size
     :clear both
     :display block
-    :margin= 0 0 (-(!line_height/1.4em))
-  label.checkbox
+    :margin= 0 0 (-(!line_height/!font_size))
+  .radio label,
+  .checkbox label,
+  label.checkbox,
+  label.radio
     :display inline-block
-    :margin= (!line_height/1.4em) 0
+    :margin= (!line_height/!font_size) 0
   input[type="checkbox"]
     :display inline-block
   input[type="submit"],
   input[type="button"]
     :height= !line_height
-
+  ul,
+  ol
+    li
+      :margin 0
+      label
+        :width auto
+        :font-size 1em
+  div
+    .multi_select,
+    .read_only
+      :margin 0 0 0 30%
+      :display inline-block
+      select
+        :margin 0
+        
 fieldset
-  :margin= (!line_height/1.4em) 0 (!line_height/1.4em) (-1.5em)
+  :margin= (!line_height/!font_size) 0 (!line_height/!font_size) (-!font_size)
   :padding= 0 !line_height
   :border 1px solid #ccc
   legend
-    :font-size 1.4em
+    :font-size= !font_size
     :font-weight bold
   fieldset
-    :margin 1.5em
+    :margin= !font_size
 
 form.justify
   fieldset
@@ -93,17 +110,4 @@ form.justify
   select
     :margin 0 0 0 30%
 
-ul,
-ol
-  li
-    label
-      :width auto
-      :font-size 1em
 
-div
-  .multi_select,
-  .read_only
-    :margin 0 0 0 30%
-    :display inline-block
-    select
-      :margin 0
