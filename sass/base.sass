@@ -1,5 +1,6 @@
 !font_color ||= #333
 !font_family ||= "helvetica,arial,sans-serif"
+!background_color ||= #FFF
 !page_color ||= #FFF
 !link_color ||= #369
 !line_height ||= 1.8em
@@ -7,7 +8,7 @@
 
 html
   :color= !font_color
-  :background = !page_color
+  :background = !background_color
   :font-size 16px
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td
   :margin 0
@@ -91,7 +92,7 @@ body
     :font-size 1.4em
     :margin= (!line_height/1.4em)-.1em 0
     :display block
-    :white-space pre-wrap;       /* css-3 */
+    :white-space pre-wrap       /* css-3 */
     :white-space -moz-pre-wrap  /* Mozilla, since 1999 */
     :white-space -pre-wrap      /* Opera 4-6 */
     :white-space -o-pre-wrap    /* Opera 7 */
@@ -118,6 +119,7 @@ body
     :width= !grid_width
     :margin 0 auto
     :background url(/images/grid.png)
+    :color= !page_color
 
 @import forms.sass
 @import grid.sass
