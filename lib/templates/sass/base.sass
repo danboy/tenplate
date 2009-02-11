@@ -1,10 +1,13 @@
 !font_color ||= #333
-!font_family ||= "helvetica,arial,sans-serif"
+!base_font ||= "helvetica,arial,sans-serif"
+!headline_font ||= !base_font
+!font_size ||= 1.6em
 !background_color ||= #FFF
 !page_color ||= #FFF
 !link_color ||= #369
 !line_height ||= 1.8em
 !grid_width ||= 96em
+!page_padding ||= 1em
 
 html
   :color= !font_color
@@ -33,7 +36,8 @@ caption, th
 
 h1,h2,h3,h4,h5,h6
   :font-size inherit
-  :font-weight normal
+  :font-weight bold
+  :font-family= !headline_font
 
 q:before, q:after
   :content ''
@@ -57,40 +61,42 @@ a:hover
 body
   :font-size 62.5%
   :color= !font_color
-  :font-family= !font_family
+  :font-family= !base_font
   :line-height= !line_height
-  h1,
-  h2,
-  h3,
-  h4
-    :font-weight bold
+
   h1
-    :font-size 2em
-    :margin-bottom= !line_height/2em
+    :font-size= !font_size + .6em
+    :margin= (!line_height/(!font_size + .6em)) 0
   h2
-    :font-size 1.8em
-    :margin-bottom= !line_height/1.8em
+    :font-size= !font_size + .4em
+    :margin= (!line_height/(!font_size + .4em)) 0
   h3
-    :font-size 1.6em
-    :margin-bottom= -(!line_height/1.6em)
+    :font-size= !font_size + .2em
+    :margin-bottom= -(!line_height/(!font_size + .2em))
   h4
-    :font-size 1.4em
-    :margin-top= !line_height/1.4em
-    :margin-bottom= -(!line_height/1.4em)
-  p,
+    :font-size= !font_size + .1em
+    :margin-top= !line_height/(!font_size + .1em)
+    :margin-bottom= -(!line_height/(!font_size + .1em))
+  p
+    :font-size= !font_size
+    :margin= (!line_height/!font_size) 0
   ul,
   ol
     :display block
-    :font-size 1.4em
+    :font-size= !font_size
     :margin 0
     li
       :margin= !line_height/1.4em 0
+      ul,
+      ol,
+      p
+        :font-size 1em
   pre.example
     :border 1px solid #900
     :background #333
     :color #EEE
-    :font-size 1.4em
-    :margin= (!line_height/1.4em)-.1em 0
+    :font-size= !font_size
+    :margin= (!line_height/!font_size)-.1em 0
     :display block
     :white-space pre-wrap       /* css-3 */
     :white-space -moz-pre-wrap  /* Mozilla, since 1999 */
@@ -104,7 +110,7 @@ body
   #notices
     :width auto
     :background-color #FFE6D4
-    :font-size 1.6em
+    :font-size= !font_size
     :padding 0
     :border-bottom 1px solid #999
     .flash-notice
@@ -116,10 +122,38 @@ body
       :color #DDD
       :padding 1em
   #canvas
-    :width= !grid_width
+    :width= !grid_width-(!page_padding*2)
+    :padding= !page_padding
     :margin 0 auto
     :background url(/images/grid.png)
-    :color= !page_color
+    :background-color= !page_color
+//CLEARFIX
+.group
+  :display inline-block
+  &:after
+    :content "."
+    :display block
+    :clear both
+    :visibility hidden
+    :line-height 0
+    :height 0
 
+html[xmlns] .group
+  :display block
+* html,
+* html body
+  :height 100%
+  :overflow auto
+
+* html .group
+  :height 1%
+* html #overlay,
+* html #modal
+  :position absolute
+
+* html #overlay
+  :width 100%
+  :height 100%
+  :filter alpha(opacity=50)
 @import forms.sass
 @import grid.sass
