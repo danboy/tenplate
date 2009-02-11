@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# The command line tenplate installer
+
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib'
+require 'tenplate'
+require 'tenplate/cli'
+
+Tenplate::CLI.execute(ARGV)
