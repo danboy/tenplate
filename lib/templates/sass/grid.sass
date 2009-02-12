@@ -1,34 +1,62 @@
-!one_column ||= (!grid_width/1.6180339887498948482em)
-body.one_column
-  #canvas
-    .column
-      :width= !grid_width -4em
-      :padding 2em
+!golden_column ||= ((!grid_width-!page_padding)/1.6180339887498948482em)
 
-body.two_column
-  #canvas
-    .column
-      :width= (!grid_width/2) -4em
-      :margin 2em
+.one_third,
+.main,
+.column_one,
+.rail,
+.column,
+.two_thirds
+  :float left
+.one_column
+  .column
+    :width= !grid_width -(!page_padding*2)
+    :padding= !page_padding
 
-body.thirds
-  #canvas
-    .two_thirds
-      :width= ((!grid_width/3)*2) -3em
-      :margin 2em
-      :float left
-      &.left
-        :margin-right 1em
-    .one_third
-      :width= (!grid_width/3) -3em
-      :margin 2em
-      :float left
-      &.right
-        :margin-left 1em
-body.golden
-  .main
-    :width= !one_column-(!line_height*2)
-    :padding= !line_height
+.two_column
+  .column
+    :width= (!grid_width/2-(!page_padding*2)) -(!page_padding*2)
+    :padding= !page_padding
+
+.three_column
+  .column
+    :width= ((!grid_width-(!page_padding*2))/3)-(!page_padding*2)
+    :padding= !page_padding
+
+.thirds
+  .two_thirds,
+  .main,
+  .column_one
+    :width= ((!grid_width/3)*2) -!page_padding
+    :padding= !page_padding
+    &.left
+      :margin-right 1em
+  .one_third,
+  .main,
+  .column_one
+    :width= (!grid_width/3) -!page_padding
+    :padding= !page_padding
+    &.right
+      :margin-left 1em
+
+.golden
+  .main,
+  .column_one
+    :width= !golden_column-(!page_padding*3.5)
+    :padding= !page_padding
+    :margin-right= !page_padding/2
+  .rail,
+  .column_two
+    :width= (!grid_width-!golden_column)-(!page_padding*3.5)
+    :padding= !page_padding
+    :margin-left= !page_padding/2
+
+.quarters
+  .column,
   .rail
-    :width= (!grid_width-!one_column)-(!line_height*2)
-    :padding= !line_height
+    :width= (!grid_width/4) -(!page_padding*3.5)
+    :padding= !page_padding
+    :margin-left= !page_padding/2
+  .main
+    :width= (((!grid_width/4))*3)-(!page_padding*3.5)
+    :margin-right= !page_padding/2
+    :padding= !page_padding
