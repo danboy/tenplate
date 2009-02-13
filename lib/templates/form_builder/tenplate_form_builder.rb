@@ -13,7 +13,14 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     define_method name do |field, *args|
       options = args.detect {|argument| argument.is_a?(Hash)} || {}
 
-      locals = {:element => super, :label => label(field, options[:label])}
+      if options[:label]
+        label_decorators = {:class => (options[:label][:show_label] == false ? :hidden : nil)}
+        label_text = options[:label].delete(:text)
+      else
+        label_decorators = {}
+      end
+
+      locals = {:element => super, :label => label(field, label_text, label_decorators)}
       locals.merge!(:tip => options.delete(:tip) || "")
 
       if has_errors_on?(field)
