@@ -10,38 +10,19 @@
 .grid
   :width= !grid_width-(!page_padding)
   :padding= !page_padding/2
-.one_third, .main, .column_one, .rail, .column, .two_quarters, .three_quarters, .half_column, .two_thirds
+.one_third, .two_thirds, .main, .column_one, .rail, .column, .two_quarters, .three_quarters, .half_column, .two_thirds
   :float left
-.one_column
-  .column
-    :width= !grid_width -(!page_padding*2)
-    :padding= !page_padding
-
-.two_column
-  .column
-    :width= (!grid_width/2-(!page_padding*2)) -(!page_padding)
-    :padding= !page_padding
-
-.three_column
-  .column
-    :width= ((!grid_width-(!page_padding*2))/3)-(!page_padding)
-    :padding= !page_padding
 
 .thirds
   .two_thirds,
   .main,
   .column_one
-    :width= ((!grid_width/3)*2) -!page_padding
-    :padding= !page_padding
-    &.left
-      :margin-right 1em
+    +column_calc((!grid/3)*2)
+
   .one_third,
   .main,
   .column_one
-    :width= (!grid_width/3) -!page_padding
-    :padding= !page_padding
-    &.right
-      :margin-left 1em
+    +column_calc(!grid/3)
 
 .golden
   .main,

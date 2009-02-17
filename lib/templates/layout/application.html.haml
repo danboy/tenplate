@@ -1,0 +1,74 @@
+- if !ie?
+  !!! XML
+!!! Strict
+%html
+  %head
+    = stylesheet_link_tag 'tenplate'
+    %link{'rel' => "alternate", 'type' => "application/rss+xml", 'title' => "RSS 2.0", 'href' => "http://www.pinmonkey.com/pages/1.rss"}
+
+  %body
+    #grid
+      #content.group.golden
+        .main.group
+          %p class='column_one'
+        .rail.group
+          %p class='column_two'
+      #columns.group.quarters
+        .column
+          %p class='column'
+        .column
+          %p class='column'
+        .column
+          %p class='column'
+        .column
+          %p class='column'
+      #columns.group.quarters
+        .column
+          %p class='column'
+        .two_quarters
+          %p class='two_quarters'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+      #columns.group.quarters
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+        .half_column
+          %p class='half_column'
+      #columns.group.quarters
+        .column
+          %p class='column'
+        .three_quarters
+          %p class='three_quarters'
+      .thirds.group
+        .two_thirds
+          %p class='two_thirds'
+        .one_third
+          %p class='one_third'
+      .thirds.group
+        .one_third
+          %p class='one_third'
+        .one_third
+          %p class='one_third'
+        .one_third
+          %p class='one_third'
+- # include javascript
+= javascript_include_tag :all
+= yield :javascript
+:javascript
+  document.observe("dom:loaded",function(ev){
+    #{yield :onReady}
+  });
