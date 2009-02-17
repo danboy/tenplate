@@ -1,22 +1,16 @@
-!golden_column ||= ((!grid_width-!page_padding)/1.6180339887498948482em)
+!grid = !grid_width-(!page_padding)
+!golden_column ||= (!grid/1.6180339887498948482em)
 
 =column_calc(!col_size)
-  :width= (!col_size-(!page_padding/2))-(!page_padding*2)
+  :width= (!col_size)-(!page_padding*2)
   :padding= !page_padding/2
   :margin= 0 (!page_padding/2)
+
 #grid,
 .grid
   :width= !grid_width-(!page_padding)
   :padding= !page_padding/2
-.one_third,
-.main,
-.column_one,
-.rail,
-.column,
-.two_quarters,
-.three_quarters,
-.half_column,
-.two_thirds
+.one_third, .main, .column_one, .rail, .column, .two_quarters, .three_quarters, .half_column, .two_thirds
   :float left
 .one_column
   .column
@@ -55,16 +49,16 @@
     +column_calc(!golden_column)
   .rail,
   .column_two
-    +column_calc((!grid_width-!golden_column))
+    +column_calc((!grid-!golden_column))
 
 .quarters
   .column,
   .rail
-    +column_calc(!grid_width/4)
+    +column_calc(!grid/4)
   .main,
   .three_quarters
-    +column_calc(((!grid_width/4)*3)-!page_padding)
+    +column_calc((!grid/4)*3)
   .two_quarters
-    +column_calc(!grid_width/2)
+    +column_calc(!grid/2)
   .half_column
-    +column_calc((!grid_width)/8)
+    +column_calc((!grid)/8)
