@@ -1,5 +1,13 @@
 !golden_column ||= ((!grid_width-!page_padding)/1.6180339887498948482em)
 
+=column_calc(!col_size)
+  :width= (!col_size-(!page_padding/2))-(!page_padding*2)
+  :padding= !page_padding/2em
+  :margin= 0 (!page_padding/2em)
+#grid,
+.grid
+  :width= !grid_width-(!page_padding*2)
+  :padding= !page_padding
 .one_third,
 .main,
 .column_one,
@@ -41,14 +49,12 @@
 .golden
   .main,
   .column_one
-    :width= !golden_column-(!page_padding*3.5)
-    :padding= !page_padding
-    :margin-right= !page_padding/2
+    +column_calc(!golden_column)
   .rail,
   .column_two
-    :width= (!grid_width-!golden_column)-(!page_padding*3.5)
-    :padding= !page_padding
-    :margin-left= !page_padding/2
+    :width= ((!grid_width-!golden_column))-(!page_padding*2.5)
+    :padding= !page_padding/2em
+    :margin= 0 (!page_padding/2em)
 
 .quarters
   .column,
