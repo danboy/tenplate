@@ -1,0 +1,6 @@
+%div
+  - if title
+    %h2= title
+  %ul.check_box
+    - for item in items
+      = builder.auto_render_check_box item, selected_values

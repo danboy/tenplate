@@ -1,0 +1,7 @@
+%li
+  - if is_scoped_by_object
+    = check_box object_name, object_method, options.merge(:checked => checked_or_not), checked_value, unchecked_value
+    = builder.label object_method, label_text
+  - else
+    = check_box_tag name, checked_value, checked_or_not
+    = label_tag name, label_text
