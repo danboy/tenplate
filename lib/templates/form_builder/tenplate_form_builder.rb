@@ -37,13 +37,16 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def check_box_tag(name, options = {})
-    if [true, false, nil].include?(options[:selected]) && options[:selected] == true
+    options.delete(:label_method)
+    options.delete(:value_method)
+
+    if options.delete(:selected)
       checked_or_not = true
     else
       checked_or_not = false
     end
-    checked_value = options[:checked_value].nil? ? "1" : options[:checked_value]
-    unchecked_value = options[:unchecked_value].nil? ? "1" : options[:unchecked_value]
+    checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
+    unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
 
     @template.render :partial => 'form_templates/check_box',
                      :locals => {:name => name,
@@ -51,19 +54,24 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                  :unchecked_value => unchecked_value,
                                  :checked_or_not => checked_or_not,
                                  :is_scoped_by_object => false,
-                                 :label_text => options[:label],
+                                 :label_text => options.delete(:label),
+                                 :label_for => options.delete(:label_for) || name,
                                  :builder => self,
+                                 :is_part_of_group => options.delete(:is_part_of_group),
                                  :options => options}
   end
 
   def check_box(object_method, options = {})
-    if [true, false, nil].include?(options[:selected]) && options[:selected] == true
+    options.delete(:label_method)
+    options.delete(:value_method)
+
+    if options.delete(:selected)
       checked_or_not = true
     else
       checked_or_not = false
     end
-    checked_value = options[:checked_value].nil? ? "1" : options[:checked_value]
-    unchecked_value = options[:unchecked_value].nil? ? "1" : options[:unchecked_value]
+    checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
+    unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
 
     @template.render :partial => 'form_templates/check_box',
                      :locals => {:object_name => @object_name,
@@ -72,22 +80,48 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                  :unchecked_value => unchecked_value,
                                  :checked_or_not => checked_or_not,
                                  :is_scoped_by_object => true,
-                                 :label_text => options[:label],
+                                 :label_text => options.delete(:label),
+                                 :is_part_of_group => options.delete(:is_part_of_group),
                                  :builder => self,
                                  :options => options}
   end
 
   def check_box_group(items, options = {})
     @template.render :partial => 'form_templates/check_box_group',
-                     :locals => {:title => options[:title], :items => items, :builder => self, :selected_values => options[:selected]}
+                     :locals => {:title => options[:title],
+                                 :items => items,
+                                 :builder => self,
+                                 :options => options,
+                                 :selected_values => options.delete(:selected)}
   end
 
-  def auto_render_check_box(hash_or_string, selected_values = [])
-    field_name, label = hash_or_string.is_a?(Hash) ? hash_or_string.to_a.flatten : hash_or_string
-    if object.respond_to?(field_name)
-      check_box(field_name, :label => label, :selected => selected_values.include?(field_name))
+  def auto_render_check_box(checkboxable_object, selected_values = [], options = {})
+    checked_value = options[:value_method] && checkboxable_object.respond_to?(options[:value_method]) ? checkboxable_object.send(options[:value_method]) : "1"
+    unchecked_value = "0"
+    field_name, label_text = checkboxable_object.is_a?(Hash) ? checkboxable_object.to_a.flatten : checkboxable_object
+    if !field_name.is_a?(ActiveRecord::Base) && object.respond_to?(field_name)
+      check_box(field_name, :label => label_text,
+                            :selected => selected_values.include?(field_name),
+                            :is_part_of_group => options[:is_part_of_group],
+                            :checked_value => "1",
+                            :unchecked_value => "0"
+                            )
     else
-      check_box_tag(field_name, :label => label, :selected => selected_values.include?(field_name))
+      checkboxable_object_id = field_name
+      scoped_field_name = options[:scoped_by] || field_name.class.to_s.downcase
+      pluralized_value_method = options[:value_method] ? options[:value_method].to_s.pluralize : "ids"
+      potential_scoping = "#{scoped_field_name}_#{pluralized_value_method}"
+      if object.respond_to?(potential_scoping)
+        field_name = "#{object_name.downcase}[#{potential_scoping}][]"
+        label_text = checkboxable_object.send(options[:label_method])
+        checkboxable_object_id = "#{object_name}_#{scoped_field_name}_#{checkboxable_object.id}"
+      end
+
+      check_box_tag(field_name, options.merge({:label => label_text, :id => checkboxable_object_id, :label_for => checkboxable_object_id,
+                                :selected => selected_values.include?(field_name),
+                                :checked_value => checked_value,
+                                :unchecked_value => unchecked_value,
+                                :is_part_of_group => options[:is_part_of_group]}))
     end
   end
 
@@ -119,6 +153,10 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
 
   def title(form_title)
     @template.render :partial => 'form_templates/form_title', :locals => {:title => form_title}
+  end
+
+  def subtitle(form_subtitle)
+    @template.render :partial => 'form_templates/form_subtitle', :locals => {:subtitle => form_subtitle}
   end
 
   def label_text_for(hash_or_string)

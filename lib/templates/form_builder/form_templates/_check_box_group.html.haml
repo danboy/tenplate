@@ -1,6 +1,10 @@
-%div
+%div.checkbox
   - if title
     %h2= title
-  %ul.check_box
+  - if items.size > 1
+    %ul
+      - for item in items
+        = builder.auto_render_check_box item, selected_values, options.merge(:is_part_of_group => true)
+  - else
     - for item in items
-      = builder.auto_render_check_box item, selected_values
+      = builder.auto_render_check_box item, selected_values, options.merge(:is_part_of_group => false)

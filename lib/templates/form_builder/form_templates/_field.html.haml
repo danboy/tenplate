@@ -1,4 +1,6 @@
 %div
   = label
   = element
-  .label_note.quiet= tip
+  - unless tip.blank?
+    .tip.quiet= tip
+
