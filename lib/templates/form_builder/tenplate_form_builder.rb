@@ -39,6 +39,8 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   def check_box_tag(name, options = {})
     options.delete(:label_method)
     options.delete(:value_method)
+    part_of_group = false
+    label_text = options.delete(:label) || name.to_s.titleize
 
     if options.delete(:selected)
       checked_or_not = true
@@ -54,10 +56,10 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                  :unchecked_value => unchecked_value,
                                  :checked_or_not => checked_or_not,
                                  :is_scoped_by_object => false,
-                                 :label_text => options.delete(:label),
+                                 :label_text => label_text,
                                  :label_for => options.delete(:label_for) || name,
                                  :builder => self,
-                                 :is_part_of_group => options.delete(:is_part_of_group),
+                                 :is_part_of_group => part_of_group,
                                  :options => options}
   end
 
