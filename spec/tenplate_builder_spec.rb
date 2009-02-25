@@ -1,11 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe CheckBoxItem do
-  it "should accept a symbol for a field name" do
-    lambda {CheckBoxItem.new(:first_name)}.should_not raise_error
-  end
-end
-
 describe TenplateFormBuilder do
   before(:each) do
     @object = mock("A Person object")
