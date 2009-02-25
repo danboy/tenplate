@@ -1,4 +1,5 @@
 require 'spec'
+require 'ruby-debug'
 
 gem 'actionpack'
 require 'action_view'
