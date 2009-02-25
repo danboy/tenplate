@@ -41,8 +41,9 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:value_method)
     options.delete(:scoped_by_object)
     part_of_group = options.delete(:is_part_of_group) == true
-    selected_state = options.delete(:selected) == true
     label_text = options.delete(:label) || name.to_s.titleize
+    label_for = options.delete(:label_for) || name
+    selected_state = options.delete(:selected) == true
     checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
     unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
 
@@ -53,7 +54,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                  :selected_state => selected_state,
                                  :scoped_by_object => false,
                                  :label_text => label_text,
-                                 :label_for => options.delete(:label_for) || name,
+                                 :label_for => label_for,
                                  :builder => self,
                                  :is_part_of_group => part_of_group,
                                  :options => options}

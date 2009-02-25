@@ -86,8 +86,17 @@ describe TenplateFormBuilder do
           check_options_full :passed_in => {:scoped_by_object => "3232"}, :expected => {:scoped_by_object => false}
         end
       end
-      context "setting 'label_text'"
-      context "setting 'label_for'"
+      context "setting 'label_text'" do
+        it "passes the specified value when supplied" do
+          supplied_value = "Accepted T & C"
+          check_options_full :expected => {:label_text => supplied_value}, :passed_in => {:label => supplied_value}
+        end
+      end
+      context "setting 'label_for'" do
+        it "passes the specified value when supplied" do
+          check_options_same :label_for => :manually_specified_field_name
+        end
+      end
       context "setting 'builder'"
       context "setting 'is_part_of_group'"
       context "setting 'options'"
