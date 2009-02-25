@@ -1,7 +1,7 @@
 - checkbox_item_wrapper(is_part_of_group) do
   - if is_scoped_by_object
-    = check_box object_name, object_method, options.merge(:checked => checked_or_not), checked_value, unchecked_value
+    = check_box object_name, object_method, options.merge(:checked => selected_state), checked_value, unchecked_value
     = builder.label object_method, label_text
   - else
-    = check_box_tag name, checked_value, checked_or_not, options
+    = check_box_tag name, checked_value, selected_state, options
     = label_tag label_for, label_text
