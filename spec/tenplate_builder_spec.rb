@@ -25,7 +25,7 @@ describe TenplateFormBuilder do
       :scoped_by_object => false,
       :label_text => 'Accepted Terms',
       :label_for => :accepted_terms,
-      :is_part_of_group => false,
+      :part_of_group => false,
       :options => {}
       }.each_pair do |key, value|
         it "renders the checkbox view template with '#{key}' set to '#{value}'"  do
@@ -37,6 +37,10 @@ describe TenplateFormBuilder do
 
       it "renders the checkbox view template with the checkbox being in an 'unselected' state" do
         check_options_full :passed_in => {}, :expected => {:selected_state => false}
+      end
+
+      it "passes a reference to the TenplateFormBuilder" do
+        check_options_full :passed_in => {}, :expected => {:builder => @builder}
       end
     end
 
@@ -51,17 +55,17 @@ describe TenplateFormBuilder do
           check_options_same :checked_value => "323"
         end
       end
-      context "setting 'is_part_of_group'" do
+      context "setting 'part_of_group'" do
         it "passes true for true" do
-          check_options_same :is_part_of_group => true
+          check_options_same :part_of_group => true
         end
 
         it "passes false for false" do
-          check_options_same :is_part_of_group => false
+          check_options_same :part_of_group => false
         end
 
         it "passes false a non-boolean value" do
-          check_options_full :passed_in => {:is_part_of_group => "3232"}, :expected => {:is_part_of_group => false}
+          check_options_full :passed_in => {:part_of_group => "3232"}, :expected => {:part_of_group => false}
         end
       end
       context "setting 'selected'" do
@@ -97,8 +101,11 @@ describe TenplateFormBuilder do
           check_options_same :label_for => :manually_specified_field_name
         end
       end
-      context "setting 'builder'"
-      context "setting 'is_part_of_group'"
+      context "setting 'builder'" do
+        it "passes a reference to the TenplateFormBuilder" do
+          check_options_full :passed_in => {:builder => mock("Some Other Builder Type")}, :expected => {:builder => @builder}
+        end
+      end
       context "setting 'options'"
     end
   end

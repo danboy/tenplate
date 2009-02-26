@@ -40,7 +40,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:label_method)
     options.delete(:value_method)
     options.delete(:scoped_by_object)
-    part_of_group = options.delete(:is_part_of_group) == true
+    part_of_group = options.delete(:part_of_group) == true
     label_text = options.delete(:label) || name.to_s.titleize
     label_for = options.delete(:label_for) || name
     selected_state = options.delete(:selected) == true
@@ -56,7 +56,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                  :label_text => label_text,
                                  :label_for => label_for,
                                  :builder => self,
-                                 :is_part_of_group => part_of_group,
+                                 :part_of_group => part_of_group,
                                  :options => options}
   end
 
