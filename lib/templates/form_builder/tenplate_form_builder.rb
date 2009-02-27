@@ -46,6 +46,8 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     selected_state = options.delete(:selected) == true
     checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
     unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/check_box',
                      :locals => {:name => name,

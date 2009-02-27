@@ -106,7 +106,21 @@ describe TenplateFormBuilder do
           check_options_full :passed_in => {:builder => mock("Some Other Builder Type")}, :expected => {:builder => @builder}
         end
       end
-      context "setting 'options'"
+      context "setting 'options'" do
+        supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+
+        it "removes all invalid attributes for the 'checkbox' input type" do
+          bad_attributes = {:disbled => true, :label => :text_label, :bad_tag => :bad_data}
+          check_options_full :passed_in => bad_attributes, :expected => {:options => {}}
+        end
+
+        supported_attributes.each do |html_attribute|
+          it "passes value of '#{html_attribute}' directly through" do
+            supplied_value = mock("User specified value")
+            check_options_full :passed_in => {html_attribute => supplied_value}, :expected => {:options => {html_attribute => supplied_value}}
+          end
+        end
+      end
     end
   end
 end
