@@ -40,51 +40,53 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:label_method)
     options.delete(:value_method)
     options.delete(:scoped_by_object)
-    part_of_group = options.delete(:part_of_group) == true
-    label_text = options.delete(:label) || name.to_s.titleize
-    label_for = options.delete(:label_for) || name
-    selected_state = options.delete(:selected) == true
-    checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
-    unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
+    part_of_group        = options.delete(:part_of_group) == true
+    label_text           = options.delete(:label)     || name.to_s.titleize
+    label_for            = options.delete(:label_for) || name
+    selected_state       = options.delete(:selected) == true
+    checked_value        = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
+    unchecked_value      = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
     supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/check_box',
-                     :locals => {:name => name,
-                                 :checked_value => checked_value,
-                                 :unchecked_value => unchecked_value,
-                                 :selected_state => selected_state,
+                     :locals => {:name             => name,
+                                 :checked_value    => checked_value,
+                                 :unchecked_value  => unchecked_value,
+                                 :selected_state   => selected_state,
                                  :scoped_by_object => false,
-                                 :label_text => label_text,
-                                 :label_for => label_for,
-                                 :builder => self,
-                                 :part_of_group => part_of_group,
-                                 :options => options}
+                                 :label_text       => label_text,
+                                 :label_for        => label_for,
+                                 :builder          => self,
+                                 :part_of_group    => part_of_group,
+                                 :options          => options}
   end
 
   def check_box(object_method, options = {})
     options.delete(:label_method)
     options.delete(:value_method)
+    label_text      = options.delete(:label) || object_method.to_s.titleize
+    checked_value   = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
+    unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
 
     if options.delete(:selected)
       checked_or_not = true
     else
       checked_or_not = false
     end
-    checked_value = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
-    unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
 
     @template.render :partial => 'form_templates/check_box',
-                     :locals => {:object_name => @object_name,
-                                 :object_method => object_method,
-                                 :checked_value => checked_value,
-                                 :unchecked_value => unchecked_value,
-                                 :checked_or_not => checked_or_not,
+                     :locals => {:object_name         => @object_name,
+                                 :object_method       => object_method,
+                                 :checked_value       => checked_value,
+                                 :unchecked_value     => unchecked_value,
+                                 :checked_or_not      => checked_or_not,
                                  :is_scoped_by_object => true,
-                                 :label_text => options.delete(:label),
-                                 :is_part_of_group => options.delete(:is_part_of_group),
-                                 :builder => self,
-                                 :options => options}
+                                 :label_text          => label_text,
+                                 :label_for           => label_text,
+                                 :is_part_of_group    => options.delete(:is_part_of_group),
+                                 :builder             => self,
+                                 :options             => options}
   end
 
   def check_box_group(items, options = {})
