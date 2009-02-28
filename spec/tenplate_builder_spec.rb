@@ -24,7 +24,6 @@ describe TenplateFormBuilder do
       @output_name = output_name
     end
 
-
     shared_examples_for "Any boolean option" do
       it "passes the view template a 'part_of_group' of false when given false" do
         check_options_full :passed_in => {@input_name => false},  :expected => {@output_name => false}
@@ -35,7 +34,15 @@ describe TenplateFormBuilder do
       end
 
       it "passes the view template a 'part_of_group' of false for a non-boolean value" do
-        check_options_full :passed_in => {@input_name => "3232"}, :expected => {@output_name => false}
+        supplied_value = mock("Customized value for '#{@input_name}'")
+        check_options_full :passed_in => {@input_name => supplied_value}, :expected => {@output_name => false}
+      end
+    end
+
+    shared_examples_for "Any customizable option" do
+      it "passes the specified value when supplied" do
+        supplied_value = mock("Customized value for '#{@input_name}'")
+        check_options_full :passed_in => {@input_name => supplied_value}, :expected => { @output_name => supplied_value}
       end
     end
 
@@ -65,6 +72,7 @@ describe TenplateFormBuilder do
         it "renders the checkbox view template with the checkbox being in an 'unselected' state" do
             check_options_full :passed_in => {}, :expected => {:selected_state => false}
         end
+
         it "passes a reference to the TenplateFormBuilder" do
            check_options_full :passed_in => {}, :expected => {:builder => @builder}
         end
@@ -72,61 +80,55 @@ describe TenplateFormBuilder do
 
       context 'with options passed in' do
         context "setting 'checked_value'" do
-          it "passes the value supplied if specified" do
-            check_options_same :unchecked_value => "323"
-          end
+          before(:each) {testing_field :unchecked_value}
+          it_should_behave_like "Any customizable option"
         end
+
         context "setting 'unchecked_value'" do
-          it "passes the value supplied if specified" do
-            check_options_same :checked_value => "323"
-          end
+          before(:each) {testing_field :checked_value}
+          it_should_behave_like "Any customizable option"
         end
+
         context "setting 'part_of_group'" do
-          it "passes true for true" do
-            check_options_same :part_of_group => true
-          end
-
-          it "passes false for false" do
-            check_options_same :part_of_group => false
-          end
-
-          it "passes false a non-boolean value" do
-            check_options_full :passed_in => {:part_of_group => "3232"}, :expected => {:part_of_group => false}
-          end
-        end
-        context "setting 'selected'" do
-          before(:each) do
-            testing_field :selected, :selected_state
-          end
           it_should_behave_like "Any boolean option"
+          before(:each) {testing_field :part_of_group}
         end
+
+        context "setting 'selected'" do
+          it_should_behave_like "Any boolean option"
+          before(:each) {testing_field :selected, :selected_state}
+        end
+
         context "manually setting 'scoped_by_object' is ignored" do
           it "passes false for false" do
             check_options_full :passed_in => {:scoped_by_object => false},  :expected => {:scoped_by_object => false}
           end
+
           it "passes false for true" do
             check_options_full :passed_in => {:scoped_by_object => true},   :expected => {:scoped_by_object => false}
           end
+
           it "passes false for a non-boolean value" do
             check_options_full :passed_in => {:scoped_by_object => "3232"}, :expected => {:scoped_by_object => false}
           end
         end
+
         context "setting 'label_text'" do
-          it "passes the specified value when supplied" do
-            supplied_value = "Accepted T & C"
-            check_options_full :expected => {:label_text => supplied_value}, :passed_in => {:label => supplied_value}
-          end
+          before(:each) {testing_field :label, :label_text}
+          it_should_behave_like "Any customizable option"
         end
+
         context "setting 'label_for'" do
-          it "passes the specified value when supplied" do
-            check_options_same :label_for => :manually_specified_field_name
-          end
+          before(:each) {testing_field :label_for}
+          it_should_behave_like "Any customizable option"
         end
+
         context "setting 'builder'" do
           it "passes a reference to the TenplateFormBuilder" do
             check_options_full :passed_in => {:builder => mock("Some Other Builder Type")}, :expected => {:builder => @builder}
           end
         end
+
         context "setting 'options'" do
           supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
 
@@ -179,11 +181,14 @@ describe TenplateFormBuilder do
       context 'with options passed in' do
         [:label_for, :checked_value, :unchecked_value].each do |attribute_name|
           context "setting '#{attribute_name.to_s}'" do
-            it "passes the specified value straight through to view template" do
-              specified_value = mock("Manually Specified Value")
-              check_options_same attribute_name => specified_value
-            end
+            before(:each) {testing_field attribute_name}
+            it_should_behave_like "Any customizable option"
           end
+        end
+
+        context "setting 'label'" do
+          before(:each) {testing_field :label, :label_text}
+          it_should_behave_like "Any customizable option"
         end
 
         context "setting 'scoped_by_object'" do
@@ -192,24 +197,13 @@ describe TenplateFormBuilder do
           end
         end
 
-        context "setting 'label'" do
-          it "passes the specified value as 'label_text' to the template" do
-            specified_value = "A Different Label"
-            check_options_full :passed_in => {:label => specified_value}, :expected => {:label_text => specified_value}
-          end
-        end
-
         context "setting 'selected'" do
           it_should_behave_like "Any boolean option"
-          before(:each) do
-            testing_field :selected, :selected_state
-          end
+          before(:each) {testing_field :selected, :selected_state}
         end
 
         context "setting 'part_of_group'" do
-          before(:each) do
-            testing_field :part_of_group
-          end
+          before(:each) {testing_field :part_of_group}
           it_should_behave_like "Any boolean option"
         end
 
