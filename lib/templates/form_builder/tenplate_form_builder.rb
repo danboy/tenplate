@@ -66,25 +66,24 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:label_method)
     options.delete(:value_method)
     label_text      = options.delete(:label) || object_method.to_s.titleize
+    label_for       = options.delete(:label_for) || object_method
     checked_value   = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
     unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
-
-    if options.delete(:selected)
-      checked_or_not = true
-    else
-      checked_or_not = false
-    end
+    part_of_group   = options.delete(:part_of_group) == true
+    selected_state  = options.delete(:selected) == true
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/check_box',
-                     :locals => {:object_name         => @object_name,
+                     :locals => {:object_name         => object_name,
                                  :object_method       => object_method,
+                                 :scoped_by_object    => true,
+                                 :label_text          => label_text,
+                                 :label_for           => label_for,
                                  :checked_value       => checked_value,
                                  :unchecked_value     => unchecked_value,
-                                 :checked_or_not      => checked_or_not,
-                                 :is_scoped_by_object => true,
-                                 :label_text          => label_text,
-                                 :label_for           => label_text,
-                                 :is_part_of_group    => options.delete(:is_part_of_group),
+                                 :selected_state      => selected_state,
+                                 :part_of_group       => part_of_group,
                                  :builder             => self,
                                  :options             => options}
   end
