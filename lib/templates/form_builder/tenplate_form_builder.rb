@@ -91,8 +91,10 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   def check_box_group(items, options = {})
     selected_values = options.delete(:selected) || []
     part_of_group   = !items.nil? && items.size > 1
+    title           = options.delete(:title)
+
     @template.render :partial => 'form_templates/check_box_group',
-                     :locals => {:title           => options[:title],
+                     :locals => {:title           => title,
                                  :items           => items,
                                  :builder         => self,
                                  :part_of_group   => part_of_group,

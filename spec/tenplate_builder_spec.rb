@@ -9,9 +9,9 @@ describe TenplateFormBuilder do
   end
 
   def check_options_full validations = {}
-    expected_render_arguments = hash_including(:partial=>@partial_file_path, :locals => hash_including(validations[:expected]))
+    expected_render_arguments = hash_including(:partial => @partial_file_path, :locals => hash_including(validations[:expected]))
     @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-    render_item(@field_name, validations[:passed_in])
+    render_item(@field_name_or_items, validations[:passed_in])
   end
 
   def check_options_same values = {}
@@ -26,6 +26,7 @@ describe TenplateFormBuilder do
   context "rendering a checkbox" do
     before(:each) do
       @partial_file_path = "form_templates/check_box"
+      @field_name_or_items = :accepted_terms
     end
 
     shared_examples_for "Any boolean option" do
@@ -57,8 +58,8 @@ describe TenplateFormBuilder do
     end
 
     context "by calling 'checkbox_tag'" do
-      def render_item(field_name, options = {})
-        @builder.check_box_tag(field_name, options).should_not raise_error
+      def render_item(field, options = {})
+        @builder.check_box_tag(field, options).should_not raise_error
       end
 
       context 'with no options passed in' do
@@ -74,7 +75,7 @@ describe TenplateFormBuilder do
         :options => {}
         }.each_pair do |key, value|
           it "renders the checkbox view template with '#{key}' set to '#{value}'"  do
-            expected_render_arguments = hash_including(:partial=>"form_templates/check_box", :locals => hash_including(key => value))
+            expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(key => value))
             @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
             render_item(:accepted_terms)
           end
@@ -152,8 +153,8 @@ describe TenplateFormBuilder do
     end
 
     context "by calling 'checkbox'" do
-      def render_item(field_name, options)
-        @builder.check_box(field_name, options).should_not raise_error
+      def render_item(field, options)
+        @builder.check_box(field, options).should_not raise_error
       end
 
       it_should_behave_like "Any item rendered using the TenplateFormBuilder"
@@ -170,7 +171,7 @@ describe TenplateFormBuilder do
          :options          => {}
         }.each_pair do |key, value|
           it "renders the checkbox view template with '#{key}' set to '#{value}'"  do
-            expected_render_arguments = hash_including(:partial=>"form_templates/check_box", :locals => hash_including(key => value))
+            expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(key => value))
             @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
             @builder.check_box(:accepted_terms).should_not raise_error
           end
@@ -230,16 +231,38 @@ describe TenplateFormBuilder do
   end
 
   context "rendering a group of 'checkbox' items" do
-    def render_item(field_name, options = {})
-      @builder.check_box_group(field_name).should_not raise_error
+    def render_item(field, options = {})
+      @builder.check_box_group(field, options).should_not raise_error
     end
 
     before(:each) do
-      @items = mock("Collection of items to render with checkboxes", :size => 1)
+      @field_name_or_items = mock("Collection of items to render with checkboxes", :size => 1, :each => [])
       @partial_file_path = "form_templates/check_box_group"
     end
 
     it_should_behave_like "Any item rendered using the TenplateFormBuilder"
+
+    it "passes the array of items supplied directly through as 'items'" do
+      expected_render_arguments = hash_including(:partial => "form_templates/check_box_group", :locals => hash_including(:items => @field_name_or_items))
+      @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+      render_item(@field_name_or_items)
+    end
+
+    context "when there are 1 or less items passed in" do
+      before(:each) { @field_name_or_items.stub!(:size => 1) }
+
+      it "passes a false value for 'part_of_group'" do
+        check_options_full :passed_in => {}, :expected => {:part_of_group => false}
+      end
+    end
+
+    context "when there are more than 1 items passed in" do
+      before(:each) { @field_name_or_items.stub!(:size => 2) }
+
+      it "passes a true value for 'part_of_group'" do
+        check_options_full :passed_in => {}, :expected => {:part_of_group => true}
+      end
+    end
 
     context 'with no options passed in' do
       {:title           => nil,
@@ -248,13 +271,23 @@ describe TenplateFormBuilder do
        :options         => {}
       }.each_pair do |key, default_value|
         it "renders the checkbox view template with '#{key}' set to '#{default_value}'"  do
-          expected_render_arguments = hash_including(:partial=>"form_templates/check_box_group", :locals => hash_including(key => default_value))
+          expected_render_arguments = hash_including(:partial => "form_templates/check_box_group", :locals => hash_including(key => default_value))
           @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-          render_item(@items)
+          render_item(@field_name_or_items)
         end
       end
+    end
 
-      it "passes the array of items supplied directly through as 'items'"
+    context 'with options passed in' do
+      context "setting 'title'" do
+        before(:each) {testing_option :title}
+        it_should_behave_like "Any customizable option"
+      end
+
+      context "setting 'selected'" do
+        before(:each) {testing_option :selected, :selected_values}
+        it_should_behave_like "Any customizable option"
+      end
     end
   end
 end
