@@ -290,5 +290,28 @@ describe TenplateFormBuilder do
       end
     end
   end
-end
 
+  context "rendering a label" do
+    context "by passing in a Hash" do
+      before(:each) do
+        @hash_or_string = {:were_accepted => "I accept the terms"}
+      end
+
+      it "renders the first key returned as the label text" do
+        @template.should_receive(:label).with(@object, :accepted_terms, :were_accepted, :object => @object_name).and_return(lambda {"Rendered label input tag"})
+        @builder.label(:accepted_terms, @hash_or_string)
+      end
+    end
+
+    context "by passing in a String" do
+      before(:each) do
+        @hash_or_string = "I accpeet"
+      end
+
+      it "renders the supplied string as the label text" do
+        @template.should_receive(:label).with(@object, :accepted_terms, @hash_or_string, :object => @object_name).and_return(lambda {"Rendered label input tag"})
+        @builder.label(:accepted_terms, @hash_or_string)
+      end
+    end
+  end
+end
