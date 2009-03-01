@@ -141,11 +141,6 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                      :locals => {:title => title, :items => items, :field => field, :builder => self, :selected_item => selected_item}
   end
 
-  def label(attribute, hash_or_string, options = {})
-    text = label_text_for(hash_or_string)
-    @template.label(@object_name, attribute, text, objectify_options(options))
-  end
-
   # Generates a radio button & associated label for the supplied attribute of the 
   # given object.
   def radio_button(attribute, hash_or_string, options = {})
@@ -158,6 +153,11 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     label(attribute, hash_or_string, label_options.merge(:for => associated_element_id))
   end
 
+  def label(attribute, hash_or_string, options = {})
+    text = label_text_for(hash_or_string)
+    @template.label(@object_name, attribute, text, objectify_options(options))
+  end
+
   def title(form_title)
     @template.render :partial => 'form_templates/form_title', :locals => {:title => form_title}
   end
@@ -166,28 +166,29 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     @template.render :partial => 'form_templates/form_subtitle', :locals => {:subtitle => form_subtitle}
   end
 
-  def label_text_for(hash_or_string)
-    hash_or_string.is_a?(Hash) ? hash_or_string.keys.first : hash_or_string
-  end
-
-  def value_for(hash_or_string)
-    hash_or_string.is_a?(Hash) ? hash_or_string.values.first : hash_or_string
-  end
-
-  def error_message(field, options)
-    if has_errors_on?(field)
-      errors = object.errors.on(field)
-      if errors.is_a?(Array)
-        "#{field.to_s.capitalize} #{errors.to_sentence}."
-      else
-        "'#{field.to_s.capitalize}' #{errors}."
-      end
-    else
-      ''
+  private
+    def label_text_for(hash_or_string)
+      hash_or_string.is_a?(Hash) ? hash_or_string.keys.first : hash_or_string
     end
-  end
 
-  def has_errors_on?(field)
-    !(object.nil? || object.errors.on(field).blank?)
-  end
+    def value_for(hash_or_string)
+      hash_or_string.is_a?(Hash) ? hash_or_string.values.first : hash_or_string
+    end
+
+    def error_message(field, options)
+      if has_errors_on?(field)
+        errors = object.errors.on(field)
+        if errors.is_a?(Array)
+          "#{field.to_s.capitalize} #{errors.to_sentence}."
+        else
+          "'#{field.to_s.capitalize}' #{errors}."
+        end
+      else
+        ''
+      end
+    end
+
+    def has_errors_on?(field)
+      !(object.nil? || object.errors.on(field).blank?)
+    end
 end

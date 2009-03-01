@@ -23,38 +23,38 @@ describe TenplateFormBuilder do
     @output_name = output_name
   end
 
+  shared_examples_for "Any boolean option" do
+    it "passes the view template a 'part_of_group' of false when given false" do
+      check_options_full :passed_in => {@input_name => false},  :expected => {@output_name => false}
+    end
+
+    it "passes the view template a 'part_of_group' of true when given true" do
+      check_options_full :passed_in => {@input_name => true},   :expected => {@output_name => true}
+    end
+
+    it "passes the view template a 'part_of_group' of false for a non-boolean value" do
+      supplied_value = mock("Customized value for '#{@input_name}'")
+      check_options_full :passed_in => {@input_name => supplied_value}, :expected => {@output_name => false}
+    end
+  end
+
+  shared_examples_for "Any customizable option" do
+    it "passes the specified value when supplied" do
+      supplied_value = mock("Customized value for '#{@input_name}'")
+      check_options_full :passed_in => {@input_name => supplied_value}, :expected => { @output_name => supplied_value}
+    end
+  end
+
+  shared_examples_for "Any item rendered using the TenplateFormBuilder" do
+    it "passes a reference to the TenplateFormBuilder" do
+       check_options_full :passed_in => {}, :expected => {:builder => @builder}
+    end
+  end
+
   context "rendering a checkbox" do
     before(:each) do
       @partial_file_path = "form_templates/check_box"
       @field_name_or_items = :accepted_terms
-    end
-
-    shared_examples_for "Any boolean option" do
-      it "passes the view template a 'part_of_group' of false when given false" do
-        check_options_full :passed_in => {@input_name => false},  :expected => {@output_name => false}
-      end
-
-      it "passes the view template a 'part_of_group' of true when given true" do
-        check_options_full :passed_in => {@input_name => true},   :expected => {@output_name => true}
-      end
-
-      it "passes the view template a 'part_of_group' of false for a non-boolean value" do
-        supplied_value = mock("Customized value for '#{@input_name}'")
-        check_options_full :passed_in => {@input_name => supplied_value}, :expected => {@output_name => false}
-      end
-    end
-
-    shared_examples_for "Any customizable option" do
-      it "passes the specified value when supplied" do
-        supplied_value = mock("Customized value for '#{@input_name}'")
-        check_options_full :passed_in => {@input_name => supplied_value}, :expected => { @output_name => supplied_value}
-      end
-    end
-
-    shared_examples_for "Any item rendered using the TenplateFormBuilder" do
-      it "passes a reference to the TenplateFormBuilder" do
-         check_options_full :passed_in => {}, :expected => {:builder => @builder}
-      end
     end
 
     context "by calling 'checkbox_tag'" do
@@ -312,6 +312,24 @@ describe TenplateFormBuilder do
         @template.should_receive(:label).with(@object, :accepted_terms, @hash_or_string, :object => @object_name).and_return(lambda {"Rendered label input tag"})
         @builder.label(:accepted_terms, @hash_or_string)
       end
+    end
+  end
+
+  context "rendering a form title" do
+    it "passes the supplied string as 'title'" do
+      custom_title = mock("Custom title")
+      @template.should_receive(:render).with(:partial => "form_templates/form_title",
+                                             :locals => {:title => custom_title}).and_return(lambda {"Rendered form title"})
+      @builder.title(custom_title).should_not raise_error
+    end
+  end
+
+  context "rendering a form subtitle" do
+    it "passes the supplied string as 'subtitle'" do
+      custom_subtitle = mock("Custom subtitle")
+      @template.should_receive(:render).with(:partial => "form_templates/form_subtitle",
+                                             :locals => {:subtitle => custom_subtitle}).and_return(lambda {"Rendered form subtitle"})
+      @builder.subtitle(custom_subtitle).should_not raise_error
     end
   end
 end
