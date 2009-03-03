@@ -5,3 +5,6 @@
     %ul
       - for item in items
         = builder.auto_render_check_box item, selected_values, options.merge(:part_of_group => part_of_group)
+  - else
+    - for item in items
+      = builder.auto_render_check_box item, selected_values, options.merge(:part_of_group => part_of_group)
