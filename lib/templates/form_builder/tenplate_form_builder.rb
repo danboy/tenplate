@@ -103,15 +103,17 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def auto_render_check_box(checkboxable_object, selected_values = [], options = {})
-    checked_value = options[:value_method] && checkboxable_object.respond_to?(options[:value_method]) ? checkboxable_object.send(options[:value_method]) : "1"
-    unchecked_value = "0"
+    part_of_group = options[:part_of_group] == true
+    checked_value = 1
+    unchecked_value = 0
     field_name, label_text = checkboxable_object.is_a?(Hash) ? checkboxable_object.to_a.flatten : checkboxable_object
     if !field_name.is_a?(ActiveRecord::Base) && object.respond_to?(field_name)
+      selected = Array(selected_values).include?(field_name)
       check_box(field_name, :label => label_text,
-                            :selected => selected_values.include?(field_name),
-                            :is_part_of_group => options[:is_part_of_group],
-                            :checked_value => "1",
-                            :unchecked_value => "0"
+                            :selected => selected,
+                            :part_of_group => part_of_group,
+                            :checked_value => checked_value,
+                            :unchecked_value => unchecked_value
                             )
     else
       checkboxable_object_id = field_name
@@ -120,15 +122,28 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
       potential_scoping = "#{scoped_field_name}_#{pluralized_value_method}"
       if object.respond_to?(potential_scoping)
         field_name = "#{object_name.downcase}[#{potential_scoping}][]"
-        label_text = checkboxable_object.send(options[:label_method])
-        checkboxable_object_id = "#{object_name}_#{scoped_field_name}_#{checkboxable_object.id}"
+        checkboxable_object_id = "#{object_name.downcase}_#{scoped_field_name}_#{checkboxable_object.id}"
       end
 
-      check_box_tag(field_name, options.merge({:label => label_text, :id => checkboxable_object_id, :label_for => checkboxable_object_id,
-                                :selected => selected_values.include?(field_name),
-                                :checked_value => checked_value,
-                                :unchecked_value => unchecked_value,
-                                :is_part_of_group => options[:is_part_of_group]}))
+      if !options[:label_method].nil? && checkboxable_object.respond_to?(options[:label_method])
+        label_text = checkboxable_object.send(options[:label_method])
+        options.delete(:label_method)
+      else
+        label_text = "':label_method' not set!"
+      end
+
+      if options[:value_method] && checkboxable_object.respond_to?(options[:value_method])
+        checked_value = checkboxable_object.send(options[:value_method])
+        options.delete(:value_method)
+      end
+
+      check_box_tag(field_name, options.merge({:label           => label_text,
+                                               :id              => checkboxable_object_id,
+                                               :label_for       => checkboxable_object_id,
+                                               :selected        => selected_values.include?(field_name),
+                                               :checked_value   => checked_value,
+                                               :unchecked_value => unchecked_value,
+                                               :part_of_group   => part_of_group}))
     end
   end
 

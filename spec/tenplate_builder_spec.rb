@@ -1,17 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+class Person
+end
+
 describe TenplateFormBuilder do
   before(:each) do
     @object = mock("A Person object")
-    @object_name = :person
+    @object_name = @object
     @template = mock("View template object")
     @builder = TenplateFormBuilder.new @object, @object_name, @template, {}, nil
-  end
-
-  def check_options_full validations = {}
-    expected_render_arguments = hash_including(:partial => @partial_file_path, :locals => hash_including(validations[:expected]))
-    @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-    render_item(@field_name_or_items, validations[:passed_in])
   end
 
   def check_options_same values = {}
@@ -52,14 +49,11 @@ describe TenplateFormBuilder do
   end
 
   context "rendering a checkbox" do
-    before(:each) do
-      @partial_file_path = "form_templates/check_box"
-      @field_name_or_items = :accepted_terms
-    end
-
     context "by calling 'checkbox_tag'" do
-      def render_item(field, options = {})
-        @builder.check_box_tag(field, options).should_not raise_error
+      def check_options_full(validations = {})
+        expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(validations[:expected]))
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.check_box_tag(:accepted_terms, validations[:passed_in]).should_not raise_error
       end
 
       context 'with no options passed in' do
@@ -77,7 +71,7 @@ describe TenplateFormBuilder do
           it "renders the checkbox view template with '#{key}' set to '#{value}'"  do
             expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(key => value))
             @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-            render_item(:accepted_terms)
+            @builder.check_box_tag(:accepted_terms).should_not raise_error
           end
         end
 
@@ -152,15 +146,16 @@ describe TenplateFormBuilder do
       end
     end
 
-    context "by calling 'checkbox'" do
-      def render_item(field, options)
-        @builder.check_box(field, options).should_not raise_error
+    context "by calling 'check_box'" do
+      def check_options_full(validations = {})
+        expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(validations[:expected]))
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.check_box(:accepted_terms, validations[:passed_in]).should_not raise_error
       end
 
       it_should_behave_like "Any item rendered using the TenplateFormBuilder"
 
       context 'with no options passed in' do
-
         {:object_method    => :accepted_terms,
          :checked_value    => '1',
          :unchecked_value  => '0',
@@ -231,13 +226,14 @@ describe TenplateFormBuilder do
   end
 
   context "rendering a group of 'checkbox' items" do
-    def render_item(field, options = {})
-      @builder.check_box_group(field, options).should_not raise_error
-    end
-
     before(:each) do
       @field_name_or_items = mock("Collection of items to render with checkboxes", :size => 1, :each => [])
-      @partial_file_path = "form_templates/check_box_group"
+    end
+
+    def check_options_full(validations = {})
+      expected_render_arguments = hash_including(:partial => "form_templates/check_box_group", :locals => hash_including(validations[:expected]))
+      @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+      @builder.check_box_group(@field_name_or_items, validations[:passed_in]).should_not raise_error
     end
 
     it_should_behave_like "Any item rendered using the TenplateFormBuilder"
@@ -245,7 +241,7 @@ describe TenplateFormBuilder do
     it "passes the array of items supplied directly through as 'items'" do
       expected_render_arguments = hash_including(:partial => "form_templates/check_box_group", :locals => hash_including(:items => @field_name_or_items))
       @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-      render_item(@field_name_or_items)
+      @builder.check_box_group(@field_name_or_items).should_not raise_error
     end
 
     context "when there are 1 or less items passed in" do
@@ -273,7 +269,7 @@ describe TenplateFormBuilder do
         it "renders the checkbox view template with '#{key}' set to '#{default_value}'"  do
           expected_render_arguments = hash_including(:partial => "form_templates/check_box_group", :locals => hash_including(key => default_value))
           @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-          render_item(@field_name_or_items)
+          @builder.check_box_group(@field_name_or_items).should_not raise_error
         end
       end
     end
@@ -287,6 +283,143 @@ describe TenplateFormBuilder do
       context "setting 'selected'" do
         before(:each) {testing_option :selected, :selected_values}
         it_should_behave_like "Any customizable option"
+      end
+    end
+  end
+
+  context "auto-rendering a checkbox" do
+    context "when passing in an ActiveRecord instance" do
+      before(:each) do
+        class Role; end
+        @object.stub!(:downcase).and_return("person")
+        @selected_items = mock("Items Selected by Default", :include? => false)
+        @active_record_object = mock("ActiveRecord object", :class => Role, :name => "Administrator")
+        @active_record_object.stub!(:is_a?).with(Hash).and_return(false)
+        @active_record_object.stub!(:is_a?).with(ActiveRecord::Base).and_return(true)
+        @object_name.stub!(:respond_to?).and_return(true)
+        @object_name.stub!(:to_s).and_return("Person")
+      end
+
+      {:checked_value   => 1,
+       :unchecked_value => 0,
+       :label           => "':label_method' not set!",
+       :part_of_group   => false,
+       :selected        => false
+      }.each do |option_name, default_value|
+        it "passes a default value of '#{default_value}' for '#{option_name.to_s}'" do
+          expected_render_arguments = ["person[role_ids][]", hash_including(option_name => default_value)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+        end
+      end
+
+      context "setting 'label_method'" do
+        it "passes the value of sending the supplied method to the object specified as the label for the checkbox" do
+          expected_render_arguments = ["person[role_ids][]", hash_including(:label => @active_record_object.name)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, [], :label_method => :name).should_not raise_error
+        end
+
+        it "removes the value of 'label_method' from the list of options passed to the view" do
+          expected_render_arguments = ["person[role_ids][]", hash_not_including(:label_method)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, [], :label_method => :name).should_not raise_error
+        end
+      end
+
+      context "setting 'value_method'" do
+        it "names the group of check boxes scoped by the parent object & a pluralized form of the value method ('name' -> 'names')" do
+          @builder.should_receive(:check_box_tag).with("person[role_names][]", anything()).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, [], :value_method => :name).should_not raise_error
+        end
+
+        it "sets the 'checked_value' of the checkbox to the results of issuing the provided method against the supplied object" do
+          expected_render_arguments = ["person[role_names][]", hash_including(:checked_value => @active_record_object.name)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, [], :value_method => :name).should_not raise_error
+        end
+
+        it "removes the value of 'value_method' from the list of options passed to the view" do
+          expected_render_arguments = ["person[role_names][]", hash_not_including(:value_method)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, [], :value_method => :name).should_not raise_error
+        end
+      end
+
+      context "the object bound to the form is associated with" do
+        before(:each) do
+          @object_name.stub!(:respond_to?).with("role_ids").and_return(true)
+          @object_name.stub!(:label_method).with("role_ids").and_return(true)
+          @suggested_id = "person_#{@active_record_object.class.to_s.downcase}_#{@active_record_object.id}"
+        end
+
+        [:id, :label_for].each do |attribute_name|
+          it "passes an auto-suggested value through as '#{attribute_name}' capable of capturing multiple checkboxes selections" do
+            expected_render_arguments = ["person[role_ids][]", hash_including(attribute_name => @suggested_id)]
+            @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+            @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+          end
+        end
+      end
+
+      context "the object bound to the form is not associated with" do
+        before(:each) do
+          @object_name.stub!(:respond_to?).with("role_ids").and_return(false)
+          @active_record_object.stub!(:is_a?).with(Regexp).and_return(false)
+        end
+
+        it "passes the object specified straight through as 'id'" do
+          expected_render_arguments = [@active_record_object, hash_including(:id => @active_record_object)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+        end
+
+        it "passes the object specified straight through as 'label_for'" do
+          expected_render_arguments = [@active_record_object, hash_including(:label_for => @active_record_object)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+        end
+      end
+    end
+
+    context "when passing in a Hash" do
+      before(:each) do
+        @object.stub!(:downcase).and_return("person")
+        @hash_of_roles = {:admin => "Administrator"}
+        @object_name.stub!(:respond_to?).and_return(true)
+      end
+
+      def check_options_full(validations = {})
+        expected_render_arguments = hash_including(:partial => "form_templates/check_box", :locals => hash_including(validations[:expected]))
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.check_box(@hash_of_roles, validations[:passed_in]).should_not raise_error
+      end
+
+      {:label => "Administrator",
+       :selected => false,
+       :part_of_group => false,
+       :checked_value => 1,
+       :unchecked_value => 0
+      }.each do |option_name, default_value|
+        it "passes a default value of '#{default_value}' for '#{option_name.to_s}'" do
+          expected_render_arguments = [:admin, hash_including(option_name => default_value)]
+          @builder.should_receive(:check_box).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@hash_of_roles).should_not raise_error
+        end
+      end
+
+      context "and 'selected_values' includes the key of the provided Hash" do
+        it "sets 'selected' to true" do
+          selected_items = :admin
+          expected_render_arguments = [:admin, hash_including(:selected => true)]
+          @builder.should_receive(:check_box).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@hash_of_roles, selected_items).should_not raise_error
+        end
+      end
+
+      context "setting 'part_of_group'" do
+        before(:each) {testing_option :part_of_group}
+        it_should_behave_like "Any boolean option"
       end
     end
   end
