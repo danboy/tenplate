@@ -1,14 +1,6 @@
 class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   helpers = field_helpers + %w(date_select datetime_select time_select collection_select) - %w(hidden_field label fields_for)
 
-  def submit_tag
-    if object.new_record?
-      @template.render :partial => 'form_templates/create_button'
-    else
-      @template.render :partial => 'form_templates/update_button'
-    end
-  end
-
   helpers.each do |name|
     define_method name do |field, *args|
       options = args.detect {|argument| argument.is_a?(Hash)} || {}
