@@ -147,8 +147,8 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
-  def radio_button_group(field, options)
-    items = options[:items]
+  def radio_button_group(field, options =  {})
+    items = options[:items] || []
     title = options[:title] || field.to_s.capitalize
     selected_item = options[:selected] || value_for(items.first)
 

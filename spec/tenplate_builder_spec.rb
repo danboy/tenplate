@@ -225,6 +225,46 @@ describe TenplateFormBuilder do
     end
   end
 
+  context "rendering a group of 'radio_button' items" do
+    before(:each) do
+      @genders = [:male, :female]
+    end
+
+    def check_arguments(args = {})
+      passed_in_or_default = args[:passed_in] || [:gender, {:items => @genders}]
+      @template.should_receive(:render).with(*args[:expected]).and_return(lambda {"Template rendered"})
+      @builder.radio_button_group(*passed_in_or_default).should_not raise_error
+    end
+
+    it "passes the 'TenplateFormBuilder' object as the value of 'builder'" do
+      check_arguments(:expected => hash_including(:partial => "form_templates/radio_button_group", :locals => hash_including(:builder => @builder)))
+    end
+
+    {:items => [:male, :female],
+     :title => "Gender",
+     :selected_item => :male
+    }.each do |attribute, value|
+      it "passes '#{value}' as the default value of '#{attribute}'" do
+        check_arguments(:expected => hash_including(:partial => "form_templates/radio_button_group", :locals => hash_including(attribute => value)))
+      end
+    end
+
+    context "when passing in a custom title" do
+      it "passes the supplied string as the title of the radio button group" do
+        custom_title = "My own title"
+        check_arguments(:expected => hash_including(:partial => "form_templates/radio_button_group", :locals => hash_including(:title => custom_title)),
+                        :passed_in => [:gender, {:title => custom_title}])
+      end
+    end
+
+    context "setting a specific item in the group the default item to be 'selected'" do
+      it "passes the value of the specified item as the value of 'selected_item'" do
+        check_arguments(:expected => hash_including(:partial => "form_templates/radio_button_group", :locals => hash_including(:selected_item => @genders.last)),
+                        :passed_in => [:gender, {:items => @genders, :selected => @genders.last}])
+      end
+    end
+  end
+
   context "rendering a group of 'checkbox' items" do
     before(:each) do
       @field_name_or_items = mock("Collection of items to render with checkboxes", :size => 1, :each => [])
