@@ -11,10 +11,6 @@ describe TenplateFormBuilder do
     @builder = TenplateFormBuilder.new @object, @object_name, @template, {}, nil
   end
 
-  def check_options_same values = {}
-    check_options_full :passed_in => values, :expected => values
-  end
-
   def testing_option(input_name, output_name = input_name)
     @input_name = input_name
     @output_name = output_name
