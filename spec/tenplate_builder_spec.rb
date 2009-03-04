@@ -432,15 +432,20 @@ describe TenplateFormBuilder do
       @attribute = :favorite_color
       @radio_proc = mock("Results from radio button call", :call => "Radio rendered", :+ => lambda {"Radio & Label both rendered"})
       @label_proc = mock("Results from label call", :call => "Label rendered")
+      @default_passed_in_args = [@attribute, @hash_or_string]
+    end
+
+    def render_radio_button(expected_label, expected_input, passed_in = @default_passed_in_args)
+      @template.should_receive(:radio_button).with(*expected_input).and_return(@radio_proc)
+      @template.should_receive(:label).with(*expected_label).and_return(@label_proc)
+      @builder.radio_button(*passed_in).should_not raise_error
     end
 
     context 'by passing in a Hash for the value/label' do
       it "renders a radio button and label for specified attribute scoped by the object bound to the form" do
-        expected_radio_render_arguments = [@object, @attribute, @value, anything()]
-        expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
-        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+        expected_radio_render_args = [@object, @attribute, @value, anything()]
+        expected_label_render_args = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
+        render_radio_button(expected_label_render_args, expected_radio_render_args)
       end
     end
 
@@ -450,14 +455,13 @@ describe TenplateFormBuilder do
         @attribute = :favorite_color
         @radio_proc = mock("Results from radio button call", :call => "Radio rendered", :+ => lambda {"Radio & Label both rendered"})
         @label_proc = mock("Results from label call", :call => "Label rendered")
+        @default_passed_in_args = [@attribute, @hash_or_string]
       end
 
       it "renders a radio button and label for specified attribute scoped by the object bound to the form" do
         expected_radio_render_arguments = [@object, @attribute, @hash_or_string, anything()]
         expected_label_render_arguments = [@object, @attribute, @hash_or_string, hash_including(:for => anything(), :object => @object)]
-        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+        render_radio_button(expected_label_render_arguments, expected_radio_render_arguments)
       end
     end
 
@@ -465,9 +469,7 @@ describe TenplateFormBuilder do
       it "renders with a value of 'checked' for the 'checked' attribute" do
         expected_radio_render_arguments = [@object, @attribute, @value, hash_including(:checked => "checked")]
         expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
-        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-        @builder.radio_button(@attribute, @hash_or_string, :selected_item => @value).should_not raise_error
+        render_radio_button(expected_label_render_arguments, expected_radio_render_arguments, @default_passed_in_args.push({:selected_item => @value}))
       end
     end
 
@@ -475,27 +477,21 @@ describe TenplateFormBuilder do
       it "renders without the 'checked' attribute" do
         expected_radio_render_arguments = [@object, @attribute, @value, hash_not_including(:checked)]
         expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
-        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+        render_radio_button(expected_label_render_arguments, expected_radio_render_arguments)
       end
     end
 
     it "renders a label with a 'for' attribute matching the 'id' of the associated radio button" do
       expected_radio_render_arguments = [@object, @attribute, @value, anything()]
       expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => "#{@object_name}_#{@attribute}_#{@value}".downcase, :object => @object)]
-      @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-      @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-      @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+      render_radio_button(expected_label_render_arguments, expected_radio_render_arguments)
     end
 
     it "passes items associated to the :label options directly through to the label rendering" do
       label_options = {:testing_option_for_label => "passed successfully"}
       expected_radio_render_arguments = [@object, @attribute, @value, anything()]
       expected_label_render_arguments = [@object, @attribute, @label, hash_including(label_options)]
-      @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
-      @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
-      @builder.radio_button(@attribute, @hash_or_string, :label => label_options).should_not raise_error
+      render_radio_button(expected_label_render_arguments, expected_radio_render_arguments, @default_passed_in_args.push(:label => label_options))
     end
   end
 
@@ -515,7 +511,7 @@ describe TenplateFormBuilder do
 
     context "by passing in a String" do
       before(:each) do
-        @hash_or_string = "I accpeet"
+        @hash_or_string = "I accept"
       end
 
       it "renders the supplied string as the label text" do
