@@ -424,14 +424,91 @@ describe TenplateFormBuilder do
     end
   end
 
+  context "rendering a radio button" do
+    before(:each) do
+      @label = "blue"
+      @value = 1
+      @hash_or_string = {@value => @label}
+      @attribute = :favorite_color
+      @radio_proc = mock("Results from radio button call", :call => "Radio rendered", :+ => lambda {"Radio & Label both rendered"})
+      @label_proc = mock("Results from label call", :call => "Label rendered")
+    end
+
+    context 'by passing in a Hash for the value/label' do
+      it "renders a radio button and label for specified attribute scoped by the object bound to the form" do
+        expected_radio_render_arguments = [@object, @attribute, @value, anything()]
+        expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
+        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+      end
+    end
+
+    context 'by passing in a String for the value/label' do
+      before(:each) do
+        @hash_or_string = "blue"
+        @attribute = :favorite_color
+        @radio_proc = mock("Results from radio button call", :call => "Radio rendered", :+ => lambda {"Radio & Label both rendered"})
+        @label_proc = mock("Results from label call", :call => "Label rendered")
+      end
+
+      it "renders a radio button and label for specified attribute scoped by the object bound to the form" do
+        expected_radio_render_arguments = [@object, @attribute, @hash_or_string, anything()]
+        expected_label_render_arguments = [@object, @attribute, @hash_or_string, hash_including(:for => anything(), :object => @object)]
+        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+      end
+    end
+
+    context "when value of 'selected_item' is equal to the value of the input being rendered" do
+      it "renders with a value of 'checked' for the 'checked' attribute" do
+        expected_radio_render_arguments = [@object, @attribute, @value, hash_including(:checked => "checked")]
+        expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
+        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+        @builder.radio_button(@attribute, @hash_or_string, :selected_item => @value).should_not raise_error
+      end
+    end
+
+    context "when value of 'selected_item' is not equal to the value of the input being rendered" do
+      it "renders without the 'checked' attribute" do
+        expected_radio_render_arguments = [@object, @attribute, @value, hash_not_including(:checked)]
+        expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => anything(), :object => @object)]
+        @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+        @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+        @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+      end
+    end
+
+    it "renders a label with a 'for' attribute matching the 'id' of the associated radio button" do
+      expected_radio_render_arguments = [@object, @attribute, @value, anything()]
+      expected_label_render_arguments = [@object, @attribute, @label, hash_including(:for => "#{@object_name}_#{@attribute}_#{@value}".downcase, :object => @object)]
+      @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+      @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+      @builder.radio_button(@attribute, @hash_or_string).should_not raise_error
+    end
+
+    it "passes items associated to the :label options directly through to the label rendering" do
+      label_options = {:testing_option_for_label => "passed successfully"}
+      expected_radio_render_arguments = [@object, @attribute, @value, anything()]
+      expected_label_render_arguments = [@object, @attribute, @label, hash_including(label_options)]
+      @template.should_receive(:radio_button).with(*expected_radio_render_arguments).and_return(@radio_proc)
+      @template.should_receive(:label).with(*expected_label_render_arguments).and_return(@label_proc)
+      @builder.radio_button(@attribute, @hash_or_string, :label => label_options).should_not raise_error
+    end
+  end
+
   context "rendering a label" do
     context "by passing in a Hash" do
       before(:each) do
-        @hash_or_string = {:were_accepted => "I accept the terms"}
+        @key            = :were_accepted
+        @text           = "I accept the terms"
+        @hash_or_string = {@key => @text}
       end
 
       it "renders the first key returned as the label text" do
-        @template.should_receive(:label).with(@object, :accepted_terms, :were_accepted, :object => @object_name).and_return(lambda {"Rendered label input tag"})
+        @template.should_receive(:label).with(@object, :accepted_terms, @text, :object => @object_name).and_return(lambda {"Rendered label input tag"})
         @builder.label(:accepted_terms, @hash_or_string)
       end
     end

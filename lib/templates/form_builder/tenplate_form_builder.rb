@@ -159,13 +159,15 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   # Generates a radio button & associated label for the supplied attribute of the 
   # given object.
   def radio_button(attribute, hash_or_string, options = {})
-    tag_value = value_for(hash_or_string)
-    label_options = options.delete(:label) || {}
+    tag_value         = value_for(hash_or_string)
+    label_options     = options.delete(:label) || {}
     options[:checked] = options.delete(:selected_item) == tag_value ? "checked" : nil
+    options.delete_if {|key, value| value.nil?}
 
     associated_element_id = "#{object_name}_#{attribute}_#{tag_value}".downcase
-    @template.radio_button(@object_name, attribute, tag_value, objectify_options(options)) +
-    label(attribute, hash_or_string, label_options.merge(:for => associated_element_id))
+    radio_html = @template.radio_button(@object_name, attribute, tag_value, objectify_options(options))
+    label_html = label(attribute, hash_or_string, label_options.merge(:for => associated_element_id))
+    radio_html + label_html
   end
 
   def label(attribute, hash_or_string, options = {})
@@ -183,11 +185,11 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
 
   private
     def label_text_for(hash_or_string)
-      hash_or_string.is_a?(Hash) ? hash_or_string.keys.first : hash_or_string
+      hash_or_string.is_a?(Hash) ? hash_or_string.values.first : hash_or_string
     end
 
     def value_for(hash_or_string)
-      hash_or_string.is_a?(Hash) ? hash_or_string.values.first : hash_or_string
+      hash_or_string.is_a?(Hash) ? hash_or_string.keys.first : hash_or_string
     end
 
     def error_message(field, options)
