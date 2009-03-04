@@ -44,6 +44,42 @@ describe TenplateFormBuilder do
     end
   end
 
+  context "rendering a 'standard' input type" do
+    context "when no errors present on field" do
+      before(:each) do
+        @object.stub!(:errors).and_return(mock("Error proxy object", :on => false))
+        @rendered_input = lambda {"Input rendered"}
+        @rendered_label = lambda {"Label rendered"}
+        @rendered_template = lambda {"Template rendered"}
+        @template.stub!(:text_field).and_return(@rendered_input)
+        @template.stub!(:label).and_return(@rendered_label)
+        @template.stub!(:render).and_return(@rendered_template)
+      end
+
+      [:text_field, :text_area].each do |input_type|
+        context "and requesting a '#{input_type}'" do
+          it "renders a '#{input_type}' input" do
+            expected_input_args = [@object, :first_name, hash_including(:object)]
+            @template.should_receive(input_type).with(*expected_input_args).and_return(@rendered_input)
+            @builder.send(input_type, :first_name).should_not raise_error
+          end
+        end
+      end
+
+      it "renders a label for the input" do
+        expected_label_args = [@object, :first_name, nil, hash_including(:object => @object)]
+        @template.should_receive(:label).with(*expected_label_args).and_return(@rendered_label)
+        @builder.text_field(:first_name).should_not raise_error
+      end
+
+      it "renders the 'field.html.haml' partial"  do
+        expected = hash_including(:partial => "form_templates/field")
+        @template.should_receive(:render).with(expected).and_return(lambda {"Template rendered"})
+        @builder.text_field(:first_name).should_not raise_error
+      end
+    end
+  end
+
   context "rendering a checkbox" do
     context "by calling 'checkbox_tag'" do
       def check_options_full(validations = {})
@@ -72,7 +108,7 @@ describe TenplateFormBuilder do
         end
 
         it "renders the checkbox view template with the checkbox being in an 'unselected' state" do
-            check_options_full :passed_in => {}, :expected => {:selected_state => false}
+          check_options_full :passed_in => {}, :expected => {:selected_state => false}
         end
       end
 
@@ -82,6 +118,11 @@ describe TenplateFormBuilder do
         context "setting 'checked_value'" do
           before(:each) {testing_option :unchecked_value}
           it_should_behave_like "Any customizable option"
+        end
+
+        it "should have the same label signature as 'checkbox' (:label => {:text => xxxx})" do
+          custom_label = "I accept these terms"
+          check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
         end
 
         context "setting 'unchecked_value'" do
@@ -113,9 +154,12 @@ describe TenplateFormBuilder do
           end
         end
 
-        context "setting 'label_text'" do
+        context "setting a custom label" do
           before(:each) {testing_option :label, :label_text}
-          it_should_behave_like "Any customizable option"
+          it "renders label with value of options[:label][:text]" do
+            custom_label = "I accept these terms"
+            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
+          end
         end
 
         context "setting 'label_for'" do
@@ -128,7 +172,7 @@ describe TenplateFormBuilder do
           supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
 
           it "removes all invalid attributes for the 'checkbox' input type" do
-            bad_attributes = {:disbled => true, :label => :text_label, :bad_tag => :bad_data}
+            bad_attributes = {:disbled => true, :label => {:text => :text_label}, :bad_tag => :bad_data}
             check_options_full :passed_in => bad_attributes, :expected => {:options => {}}
           end
 
@@ -173,6 +217,10 @@ describe TenplateFormBuilder do
         end
       end
 
+      context "when passing in a hash w/ a value which is a field on the associated model" do
+        it "renders the correct label as the 'value' of the hash w/o the label_method being required"
+      end
+
       context 'with options passed in' do
         [:label_for, :checked_value, :unchecked_value].each do |option_name|
           context "setting '#{option_name.to_s}'" do
@@ -181,14 +229,10 @@ describe TenplateFormBuilder do
           end
         end
 
-        context "setting 'label'" do
-          before(:each) {testing_option :label, :label_text}
-          it_should_behave_like "Any customizable option"
-        end
-
-        context "setting 'scoped_by_object'" do
-          it "is ignored and always set to true" do
-            check_options_full :passed_in => {:scoped_by_object => false}, :expected => {:scoped_by_object => true}
+        context "setting a custom label" do
+          it "renders label with value of options[:label][:text]" do
+            custom_label = "I accept these terms"
+            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
           end
         end
 
@@ -206,7 +250,7 @@ describe TenplateFormBuilder do
           supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
 
           it "removes all invalid attributes for the 'checkbox' input type" do
-            bad_attributes = {:disbled => true, :label => :text_label, :bad_tag => :bad_data}
+            bad_attributes = {:disbled => true, :label => {:text => "Custom Label"}, :bad_tag => :bad_data}
             check_options_full :passed_in => bad_attributes, :expected => {:options => {}}
           end
 
@@ -215,6 +259,13 @@ describe TenplateFormBuilder do
               supplied_value = mock("User specified value")
               check_options_full :passed_in => {html_attribute => supplied_value}, :expected => {:options => {html_attribute => supplied_value}}
             end
+          end
+        end
+
+        context "setting a custom label" do
+          it "renders label with value of options[:label][:text]" do
+            custom_label = "I accept these terms"
+            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
           end
         end
       end
