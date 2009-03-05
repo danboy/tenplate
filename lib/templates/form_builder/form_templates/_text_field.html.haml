@@ -4,7 +4,7 @@
     = text_field object_name, object_method, options
   - else
     = label_tag label_for, label_text
-    = text_field_tag name, options
+    = text_field_tag name, options[:value], options
   - unless tip.blank?
     .tip.quiet= tip
 
