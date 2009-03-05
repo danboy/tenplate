@@ -31,19 +31,25 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
 
   def text_field(object_method , options={})
     label_html_attributes = label_attributes(object_method, options.delete(:label))
+    tip = options.delete(:tip)
     supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
     @template.render :partial => "form_templates/text_field",
-                     :locals => {:object_name => object_method,
+                     :locals => {:object_name => object_name,
+                                 :object_method => object_method,
                                  :label_text  => label_html_attributes[:text],
                                  :label_for   => label_html_attributes[:for],
                                  :value       => options.delete(:value),
-                                 :options     => options,
+                                 :builder     => self,
+                                 :scoped_by_object => true,
+                                 :tip         => tip,
+                                 :options     => options
                                 }
   end
 
   def text_field_tag(name, options={})
     label_html_attributes = label_attributes(name, options.delete(:label))
+    tip = options.delete(:tip)
     supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
     @template.render :partial => "form_templates/text_field",
@@ -51,6 +57,8 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                                   :label_text  => label_html_attributes[:text],
                                   :label_for   => label_html_attributes[:for],
                                   :value      => options[:value],
+                                  :scoped_by_object => false,
+                                  :tip =>tip,
                                   :options    => options
                                  }
 

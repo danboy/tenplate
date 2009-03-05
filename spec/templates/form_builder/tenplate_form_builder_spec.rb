@@ -60,6 +60,38 @@ describe TenplateFormBuilder do
     end
   end
 
+  shared_examples_for "Any scoped field" do
+    context "manually setting 'scoped_by_object' is ignored" do
+      it "passes true for false" do
+        check_options_full :passed_in => {:scoped_by_object => false},  :expected => {:scoped_by_object => true}
+      end
+
+      it "passes true for true" do
+        check_options_full :passed_in => {:scoped_by_object => true},   :expected => {:scoped_by_object => true}
+      end
+
+      it "passes true for a non-boolean value" do
+        check_options_full :passed_in => {:scoped_by_object => "3232"}, :expected => {:scoped_by_object => true}
+      end
+    end
+  end
+
+  shared_examples_for "Any non-scoped field" do
+    context "manually setting 'scoped_by_object' is ignored" do
+      it "passes false for false" do
+        check_options_full :passed_in => {:scoped_by_object => false},  :expected => {:scoped_by_object => false}
+      end
+
+      it "passes false for true" do
+        check_options_full :passed_in => {:scoped_by_object => true},   :expected => {:scoped_by_object => false}
+      end
+
+      it "passes false for a non-boolean value" do
+        check_options_full :passed_in => {:scoped_by_object => "3232"}, :expected => {:scoped_by_object => false}
+      end
+    end
+  end
+
   shared_examples_for "Any self-cleaning input type" do
     supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
 
@@ -162,11 +194,14 @@ describe TenplateFormBuilder do
 
   context "rendering a textfield" do
     context "by calling 'text_field_tag'" do
+      it_should_behave_like "Any non-scoped field"
+
       context "without any options" do
         {:name => :first_name,
          :label_text => 'First Name',
          :label_for => :first_name,
-         :options => {}
+         :options => {},
+         :scoped_by_object => false
         }.each_pair do |key, value|
           it "renders the template with '#{key}' set to '#{value}'"  do
             expected_render_arguments = hash_including(:partial => "form_templates/text_field", :locals => hash_including(key => value))
@@ -185,7 +220,14 @@ describe TenplateFormBuilder do
         it_should_behave_like "Any labeled input type"
         it_should_behave_like "Any self-cleaning input type"
       end
-
+  
+       it "should pass the value of options[:tip] directly through as :tip" do
+         custom_tip = "Custom tip"
+         expected_render_arguments = hash_including(:locals => hash_including(:tip => custom_tip))
+         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+         @builder.text_field_tag(:first_name, :tip => custom_tip).should_not raise_error
+       end
+     
       it "renders the 'text_field' partial" do
         expected_render_arguments = hash_including(:partial => "form_templates/text_field")
         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
@@ -194,10 +236,27 @@ describe TenplateFormBuilder do
     end
 
     context "by calling 'text_field'" do
+      def check_options_full(options = {})
+        @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
+        @builder.text_field(:first_name, options[:passed_in]).should_not raise_error
+      end
+
+      it_should_behave_like "Any scoped field"
+      it_should_behave_like "Any item rendered using the TenplateFormBuilder"
+        
+      it "should pass the value of options[:tip] directly through as :tip" do
+        custom_tip = "Custom tip"
+        expected_render_arguments = hash_including(:locals => hash_including(:tip => custom_tip))
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.text_field(:first_name, :tip => custom_tip).should_not raise_error
+      end
+        
       context "without any options" do
-        {:object_name => :first_name,
+        {:object_method => :first_name,
          :label_text => 'First Name',
          :label_for => :first_name,
+         :scoped_by_object => true,
+         :tip => nil,
          :value => nil,
          :options => {}
         }.each_pair do |key, value|
@@ -208,13 +267,14 @@ describe TenplateFormBuilder do
           end
         end
 
-        def check_options_full(options = {})
-          @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
-          @builder.text_field(:first_name, options[:passed_in]).should_not raise_error
-        end
-
         it_should_behave_like "Any labeled input type"
         it_should_behave_like "Any self-cleaning input type"
+
+        it "renders the template with 'object_name' set to name of the object bound to the form"  do
+          expected_render_arguments = hash_including(:partial => "form_templates/text_field", :locals => hash_including(:object_name => @object_name))
+          @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+          @builder.text_field(:first_name).should_not raise_error
+        end
 
         it "renders the 'text_field' partial" do
           expected_render_arguments = hash_including(:partial => "form_templates/text_field")
@@ -259,6 +319,7 @@ describe TenplateFormBuilder do
 
       context 'with options passed in' do
         it_should_behave_like "Any item rendered using the TenplateFormBuilder"
+        it_should_behave_like "Any non-scoped field"
 
         context "setting 'checked_value'" do
           before(:each) {testing_option :unchecked_value}
@@ -285,19 +346,6 @@ describe TenplateFormBuilder do
           before(:each) {testing_option :selected, :selected_state}
         end
 
-        context "manually setting 'scoped_by_object' is ignored" do
-          it "passes false for false" do
-            check_options_full :passed_in => {:scoped_by_object => false},  :expected => {:scoped_by_object => false}
-          end
-
-          it "passes false for true" do
-            check_options_full :passed_in => {:scoped_by_object => true},   :expected => {:scoped_by_object => false}
-          end
-
-          it "passes false for a non-boolean value" do
-            check_options_full :passed_in => {:scoped_by_object => "3232"}, :expected => {:scoped_by_object => false}
-          end
-        end
 
         context "setting a custom label" do
           before(:each) {testing_option :label, :label_text}
