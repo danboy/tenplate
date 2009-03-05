@@ -28,6 +28,21 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
+  def text_field_tag(name, options={})
+    label_text = options[:label] && options[:label][:text] ? options[:label].delete(:text) : name.to_s.titleize
+    label_for  = options[:label] && options[:label][:for] ? options[:label].delete(:for) : name
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
+    @template.render :partial => "form_templates/text_field",
+                     :locals  => {:name       => name,
+                                  :label_text => label_text,
+                                  :label_for  => label_for,
+                                  :value      => options[:value],
+                                  :options    => options
+                                 }
+
+  end
+
   def check_box_tag(name, options = {})
     options.delete(:label_method)
     options.delete(:value_method)

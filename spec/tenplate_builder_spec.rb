@@ -80,6 +80,67 @@ describe TenplateFormBuilder do
     end
   end
 
+  context "rendering a textfield" do
+    context "by calling 'text_field_tag'" do
+      context "without any options" do
+        {:name => :first_name,
+         :label_text => 'First Name',
+         :label_for => :first_name,
+         :options => {}
+        }.each_pair do |key, value|
+          it "renders the template with '#{key}' set to '#{value}'"  do
+            expected_render_arguments = hash_including(:partial => "form_templates/text_field", :locals => hash_including(key => value))
+            @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+            @builder.text_field_tag(:first_name).should_not raise_error
+          end
+        end
+      end
+
+      def check_options_full(options = {})
+        @template.should_receive(:render).with(options[:expected]).and_return(lambda {"Template rendered"})
+        @builder.text_field_tag(:first_name, options[:passed_in]).should_not raise_error
+      end
+
+      context "with supplied options" do
+        context "passing in a value for 'options[:label]'" do
+          it "sets the value of 'label_text' to the supplied string" do
+            custom_label = "Custom label"
+            expected_render_arguments = hash_including(:locals => hash_including(:label_text => custom_label))
+            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => expected_render_arguments
+          end
+        end
+
+        context "passing in a value for 'options[:label_for]'" do
+          it "sets the value of 'label_for' to the supplied string" do
+            custom_label_for = "other_dom_id"
+            expected_render_arguments = hash_including(:locals => hash_including(:label_for => custom_label_for))
+            check_options_full :passed_in => {:label => {:for => custom_label_for}}, :expected => expected_render_arguments
+          end
+        end
+
+        it "removes all invalid attributes for the 'checkbox' input type" do
+          bad_attributes = {:disbled => true, :label => {:text => :text_label}, :bad_tag => :bad_data}
+          check_options_full :passed_in => bad_attributes, :expected => hash_including(:locals => hash_including(:options => {}))
+        end
+
+        supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+        supported_attributes.each do |html_attribute|
+          it "passes value of '#{html_attribute}' directly through" do
+            supplied_value = mock("User specified value")
+            expected_render_arguments = hash_including(:locals => hash_including({:options => hash_including(html_attribute => supplied_value)}))
+            check_options_full :passed_in => {html_attribute => supplied_value}, :expected => expected_render_arguments
+          end
+        end
+      end
+
+      it "renders the 'text_field' partial" do
+        expected_render_arguments = hash_including(:partial => "form_templates/text_field")
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.text_field_tag(:first_name).should_not raise_error
+      end
+    end
+  end
+
   context "rendering a checkbox" do
     context "by calling 'checkbox_tag'" do
       def check_options_full(validations = {})
