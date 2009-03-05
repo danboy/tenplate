@@ -1,21 +1,15 @@
 class TenplateFormBuilder < ActionView::Helpers::FormBuilder
-  helpers = field_helpers + %w(date_select datetime_select time_select collection_select) - %w(hidden_field label fields_for)
+  helpers = field_helpers + %w(date_select datetime_select time_select collection_select) - %w(hidden_field label fields_for text_field)
 
   helpers.each do |name|
     define_method name do |field, *args|
       options = args.detect {|argument| argument.is_a?(Hash)} || {}
-      label_parameters = options.delete(:label)
-
-      if label_parameters
-        extra_class = label_parameters.delete(:display) == false ? 'hidden' : nil
-        label_html_attributes = label_parameters[:html] || {}
-        supplied_classes = label_html_attributes[:class]
-        label_html_attributes[:class] = supplied_classes.nil? ? extra_class : "#{extra_class} #{supplied_classes}".strip
-        label_text = label_parameters.delete(:text)
-      else
-        label_html_attributes = {}
+      label_text = {}
+      label_html_attributes = {}
+      if label = options.delete(:label)
+        label_html_attributes.merge!(:class => 'hidden') if (label.delete(:display) == false)
+        label_html_attributes.merge!(:text  => label.delete(:text))
       end
-
       locals = {:element => super, :label => label(field, label_text, label_html_attributes)}
       locals.merge!(:tip => options.delete(:tip) || "")
 
@@ -27,16 +21,35 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
       end
     end
   end
+  
+  def label_attributes(object_method, label_hash={})
+    label_hash ||= {}
+    label_html_attributes = { :text  => label_hash.delete(:text) || object_method.to_s.titleize,
+                              :for   => label_hash.delete(:for) || object_method,
+                              }
+  end
+
+  def text_field(object_method , options={})
+    label_html_attributes = label_attributes(object_method, options.delete(:label))
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
+    @template.render :partial => "form_templates/text_field",
+                     :locals => {:object_name => object_method,
+                                 :label_text  => label_html_attributes[:text],
+                                 :label_for   => label_html_attributes[:for],
+                                 :value       => options.delete(:value),
+                                 :options     => options,
+                                }
+  end
 
   def text_field_tag(name, options={})
-    label_text = options[:label] && options[:label][:text] ? options[:label].delete(:text) : name.to_s.titleize
-    label_for  = options[:label] && options[:label][:for] ? options[:label].delete(:for) : name
+    label_html_attributes = label_attributes(name, options.delete(:label))
     supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
     @template.render :partial => "form_templates/text_field",
                      :locals  => {:name       => name,
-                                  :label_text => label_text,
-                                  :label_for  => label_for,
+                                  :label_text  => label_html_attributes[:text],
+                                  :label_for   => label_html_attributes[:for],
                                   :value      => options[:value],
                                   :options    => options
                                  }

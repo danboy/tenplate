@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '../../../spec_helper')
 
 class Person
 end
@@ -44,21 +44,63 @@ describe TenplateFormBuilder do
     end
   end
 
+  shared_examples_for "Any labeled input type" do
+    context "passing in a value for 'options[:label][:text]'" do
+      it "sets the value of 'label_text' to the supplied string" do
+        custom_label = "Custom label"
+        check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
+      end
+    end
+
+    context "passing in a value for 'options[:label][:for]'" do
+      it "sets the value of 'label_for' to the supplied string" do
+        custom_label_for = "other_dom_id"
+        check_options_full :passed_in => {:label => {:for => custom_label_for}}, :expected => {:label_for => custom_label_for}
+      end
+    end
+  end
+
+  shared_examples_for "Any self-cleaning input type" do
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+
+    it "removes all invalid attributes for the 'checkbox' input type" do
+      bad_attributes = {:disbled => true, :label => {:text => :text_label}, :bad_tag => :bad_data}
+      check_options_full :passed_in => bad_attributes, :expected => {:options => {}}
+    end
+
+    supported_attributes.each do |html_attribute|
+      it "passes value of '#{html_attribute}' directly through" do
+        supplied_value = mock("User specified value")
+        check_options_full :passed_in => {html_attribute => supplied_value}, :expected => {:options => {html_attribute => supplied_value}}
+      end
+    end
+  end
+
   context "rendering a 'standard' input type" do
+    before(:each) do
+      @rendered_input = lambda {"Input rendered"}
+      @rendered_label = lambda {"Label rendered"}
+      @rendered_template = lambda {"Template rendered"}
+      @template.stub!(:text_field).and_return(@rendered_input)
+      @template.stub!(:label).and_return(@rendered_label)
+      @template.stub!(:render).and_return(@rendered_template)
+      @object.stub!(:errors).and_return(mock("Error proxy object", :on => true))
+      @expected_base = [@object, :first_name, nil]
+    end
+
+    def check_options_full(passed_in, expected)
+      @template.should_receive(:label).with(*expected).and_return(lambda {"Template rendered"})
+      @builder.text_field(:first_name, passed_in).should_not raise_error
+    end
+
     context "when no errors present on field" do
       before(:each) do
         @object.stub!(:errors).and_return(mock("Error proxy object", :on => false))
-        @rendered_input = lambda {"Input rendered"}
-        @rendered_label = lambda {"Label rendered"}
-        @rendered_template = lambda {"Template rendered"}
-        @template.stub!(:text_field).and_return(@rendered_input)
-        @template.stub!(:label).and_return(@rendered_label)
-        @template.stub!(:render).and_return(@rendered_template)
       end
 
-      [:text_field, :text_area].each do |input_type|
+      [:text_area].each do |input_type|
         context "and requesting a '#{input_type}'" do
-          it "renders a '#{input_type}' input" do
+          xit "renders a '#{input_type}' input" do
             expected_input_args = [@object, :first_name, hash_including(:object)]
             @template.should_receive(input_type).with(*expected_input_args).and_return(@rendered_input)
             @builder.send(input_type, :first_name).should_not raise_error
@@ -66,14 +108,52 @@ describe TenplateFormBuilder do
         end
       end
 
-      it "renders a label for the input" do
+      xit "renders a label for the input" do
         expected_label_args = [@object, :first_name, nil, hash_including(:object => @object)]
         @template.should_receive(:label).with(*expected_label_args).and_return(@rendered_label)
         @builder.text_field(:first_name).should_not raise_error
       end
 
-      it "renders the 'field.html.haml' partial"  do
+      xit "renders the 'field.html.haml' partial"  do
         expected = hash_including(:partial => "form_templates/field")
+        @template.should_receive(:render).with(expected).and_return(lambda {"Template rendered"})
+        @builder.text_field(:first_name).should_not raise_error
+      end
+    end
+
+    context "when no labels hash is present" do
+      xit "it uses the default value of field_name" do
+        check_options_full({}, @expected_base.push(hash_including(:text => 'First Name')))
+      end
+    end
+
+    context "and setting label parameters" do
+      context "passing :label => {:text => 'Label'}" do
+        xit "renders a label tag with text of 'Label'" do
+          check_options_full({:label => {:text => 'Label'}}, @expected_base.push(hash_including(:text => 'Label')))
+        end
+      end
+
+      context "passing :label => {:display => false}" do
+        xit "renders a label tag with a class of 'hidden'" do
+          check_options_full({:label => {:display => false}}, @expected_base.push(hash_including(:class => 'hidden')))
+        end
+      end
+
+      context "not passing :label => {:display => true}" do
+        xit "does not render a label tag with a class of 'hidden'" do
+          check_options_full({:label => {:display => true}}, @expected_base.push(hash_not_including(:class => 'hidden')))
+        end
+      end
+    end
+
+    context "when errors are present on the field" do
+      before(:each) do
+        @object.stub!(:errors).and_return(mock("Error proxy object", :on => true))
+      end
+
+      xit "renders the 'field.html.haml' partial"  do
+        expected = hash_including(:partial => "form_templates/field_with_errors")
         @template.should_receive(:render).with(expected).and_return(lambda {"Template rendered"})
         @builder.text_field(:first_name).should_not raise_error
       end
@@ -97,46 +177,50 @@ describe TenplateFormBuilder do
       end
 
       def check_options_full(options = {})
-        @template.should_receive(:render).with(options[:expected]).and_return(lambda {"Template rendered"})
+        @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
         @builder.text_field_tag(:first_name, options[:passed_in]).should_not raise_error
       end
 
       context "with supplied options" do
-        context "passing in a value for 'options[:label]'" do
-          it "sets the value of 'label_text' to the supplied string" do
-            custom_label = "Custom label"
-            expected_render_arguments = hash_including(:locals => hash_including(:label_text => custom_label))
-            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => expected_render_arguments
-          end
-        end
-
-        context "passing in a value for 'options[:label_for]'" do
-          it "sets the value of 'label_for' to the supplied string" do
-            custom_label_for = "other_dom_id"
-            expected_render_arguments = hash_including(:locals => hash_including(:label_for => custom_label_for))
-            check_options_full :passed_in => {:label => {:for => custom_label_for}}, :expected => expected_render_arguments
-          end
-        end
-
-        it "removes all invalid attributes for the 'checkbox' input type" do
-          bad_attributes = {:disbled => true, :label => {:text => :text_label}, :bad_tag => :bad_data}
-          check_options_full :passed_in => bad_attributes, :expected => hash_including(:locals => hash_including(:options => {}))
-        end
-
-        supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
-        supported_attributes.each do |html_attribute|
-          it "passes value of '#{html_attribute}' directly through" do
-            supplied_value = mock("User specified value")
-            expected_render_arguments = hash_including(:locals => hash_including({:options => hash_including(html_attribute => supplied_value)}))
-            check_options_full :passed_in => {html_attribute => supplied_value}, :expected => expected_render_arguments
-          end
-        end
+        it_should_behave_like "Any labeled input type"
+        it_should_behave_like "Any self-cleaning input type"
       end
 
       it "renders the 'text_field' partial" do
         expected_render_arguments = hash_including(:partial => "form_templates/text_field")
         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
         @builder.text_field_tag(:first_name).should_not raise_error
+      end
+    end
+
+    context "by calling 'text_field'" do
+      context "without any options" do
+        {:object_name => :first_name,
+         :label_text => 'First Name',
+         :label_for => :first_name,
+         :value => nil,
+         :options => {}
+        }.each_pair do |key, value|
+          it "renders the template with '#{key}' set to '#{value}'"  do
+            expected_render_arguments = hash_including(:partial => "form_templates/text_field", :locals => hash_including(key => value))
+            @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+            @builder.text_field(:first_name).should_not raise_error
+          end
+        end
+
+        def check_options_full(options = {})
+          @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
+          @builder.text_field(:first_name, options[:passed_in]).should_not raise_error
+        end
+
+        it_should_behave_like "Any labeled input type"
+        it_should_behave_like "Any self-cleaning input type"
+
+        it "renders the 'text_field' partial" do
+          expected_render_arguments = hash_including(:partial => "form_templates/text_field")
+          @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+          @builder.text_field_tag(:first_name).should_not raise_error
+        end
       end
     end
   end
@@ -228,21 +312,8 @@ describe TenplateFormBuilder do
           it_should_behave_like "Any customizable option"
         end
 
-
         context "setting 'options'" do
-          supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
-
-          it "removes all invalid attributes for the 'checkbox' input type" do
-            bad_attributes = {:disbled => true, :label => {:text => :text_label}, :bad_tag => :bad_data}
-            check_options_full :passed_in => bad_attributes, :expected => {:options => {}}
-          end
-
-          supported_attributes.each do |html_attribute|
-            it "passes value of '#{html_attribute}' directly through" do
-              supplied_value = mock("User specified value")
-              check_options_full :passed_in => {html_attribute => supplied_value}, :expected => {:options => {html_attribute => supplied_value}}
-            end
-          end
+          it_should_behave_like "Any self-cleaning input type"
         end
       end
     end
