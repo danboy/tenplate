@@ -365,6 +365,8 @@ describe TenplateFormBuilder do
         @builder.check_box_tag(:accepted_terms, validations[:passed_in]).should_not raise_error
       end
 
+      it_should_behave_like "Any labeled input type"
+
       context 'with no options passed in' do
         it_should_behave_like "Any item rendered using the TenplateFormBuilder"
 
@@ -372,8 +374,6 @@ describe TenplateFormBuilder do
         :checked_value => '1',
         :unchecked_value => '0',
         :scoped_by_object => false,
-        :label_text => 'Accepted Terms',
-        :label_for => :accepted_terms,
         :part_of_group => false,
         :options => {}
         }.each_pair do |key, value|
@@ -392,6 +392,7 @@ describe TenplateFormBuilder do
       context 'with options passed in' do
         it_should_behave_like "Any item rendered using the TenplateFormBuilder"
         it_should_behave_like "Any non-scoped field"
+        it_should_behave_like "Any labeled input type"
 
         context "setting 'checked_value'" do
           before(:each) {testing_option :unchecked_value}
@@ -416,20 +417,6 @@ describe TenplateFormBuilder do
         context "setting 'selected'" do
           it_should_behave_like "Any boolean option"
           before(:each) {testing_option :selected, :selected_state}
-        end
-
-
-        context "setting a custom label" do
-          before(:each) {testing_option :label, :label_text}
-          it "renders label with value of options[:label][:text]" do
-            custom_label = "I accept these terms"
-            check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
-          end
-        end
-
-        context "setting 'label_for'" do
-          before(:each) {testing_option :label_for}
-          it_should_behave_like "Any customizable option"
         end
 
         context "setting 'options'" do
@@ -474,7 +461,7 @@ describe TenplateFormBuilder do
       end
 
       context 'with options passed in' do
-        [:label_for, :checked_value, :unchecked_value].each do |option_name|
+        [:checked_value, :unchecked_value].each do |option_name|
           context "setting '#{option_name.to_s}'" do
             before(:each) {testing_option option_name}
             it_should_behave_like "Any customizable option"
@@ -485,6 +472,13 @@ describe TenplateFormBuilder do
           it "renders label with value of options[:label][:text]" do
             custom_label = "I accept these terms"
             check_options_full :passed_in => {:label => {:text => custom_label}}, :expected => {:label_text => custom_label}
+          end
+        end
+
+        context "setting a custom 'label_for'" do
+          it "renders label with value of options[:label][:for]" do
+            custom_label_for = "something_else"
+            check_options_full :passed_in => {:label => {:for => custom_label_for}}, :expected => {:label_for => custom_label_for}
           end
         end
 
@@ -641,7 +635,6 @@ describe TenplateFormBuilder do
 
       {:checked_value   => 1,
        :unchecked_value => 0,
-       :label           => "':label_method' not set!",
        :part_of_group   => false,
        :selected        => false
       }.each do |option_name, default_value|
@@ -652,9 +645,15 @@ describe TenplateFormBuilder do
         end
       end
 
+      it "passes a default value of ':label_method not set!' for ':label[:for]'" do
+        expected_render_arguments = ["person[role_ids][]", hash_including(:label => hash_including({:text => "':label_method' not set!"}))]
+        @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+        @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+      end
+
       context "setting 'label_method'" do
         it "passes the value of sending the supplied method to the object specified as the label for the checkbox" do
-          expected_render_arguments = ["person[role_ids][]", hash_including(:label => @active_record_object.name)]
+          expected_render_arguments = ["person[role_ids][]", hash_including(:label => hash_including(:text => @active_record_object.name))]
           @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
           @builder.auto_render_check_box(@active_record_object, [], :label_method => :name).should_not raise_error
         end
@@ -692,12 +691,16 @@ describe TenplateFormBuilder do
           @suggested_id = "person_#{@active_record_object.class.to_s.downcase}_#{@active_record_object.id}"
         end
 
-        [:id, :label_for].each do |attribute_name|
-          it "passes an auto-suggested value through as '#{attribute_name}' capable of capturing multiple checkboxes selections" do
-            expected_render_arguments = ["person[role_ids][]", hash_including(attribute_name => @suggested_id)]
-            @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
-            @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
-          end
+        it "passes an auto-suggested value through as 'id' capable of capturing multiple checkboxes selections" do
+          expected_render_arguments = ["person[role_ids][]", hash_including(:id => @suggested_id)]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
+        end
+
+        it "passes an auto-suggested value through as 'label[:for]' capable of capturing multiple checkboxes selections" do
+          expected_render_arguments = ["person[role_ids][]", hash_including(:label => hash_including(:for => @suggested_id))]
+          @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+          @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
         end
       end
 
@@ -713,8 +716,8 @@ describe TenplateFormBuilder do
           @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
         end
 
-        it "passes the object specified straight through as 'label_for'" do
-          expected_render_arguments = [@active_record_object, hash_including(:label_for => @active_record_object)]
+        it "passes the object specified straight through as 'label[:for]'" do
+          expected_render_arguments = [@active_record_object, hash_including(:label => hash_including(:for => @active_record_object))]
           @builder.should_receive(:check_box_tag).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
           @builder.auto_render_check_box(@active_record_object, @selected_items).should_not raise_error
         end
@@ -734,8 +737,7 @@ describe TenplateFormBuilder do
         @builder.check_box(@hash_of_roles, validations[:passed_in]).should_not raise_error
       end
 
-      {:label => "Administrator",
-       :selected => false,
+      {:selected => false,
        :part_of_group => false,
        :checked_value => 1,
        :unchecked_value => 0
@@ -745,6 +747,12 @@ describe TenplateFormBuilder do
           @builder.should_receive(:check_box).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
           @builder.auto_render_check_box(@hash_of_roles).should_not raise_error
         end
+      end
+
+      it "passes a default value of 'Administrator' for 'label[:text]' when passing in a Hash of {:admin => 'Administrator'}" do
+        expected_render_arguments = [:admin, hash_including(:label => hash_including(:text => "Administrator"))]
+        @builder.should_receive(:check_box).with(*expected_render_arguments).and_return(lambda {"Checkbox tag rendered"})
+        @builder.auto_render_check_box(@hash_of_roles).should_not raise_error
       end
 
       context "and 'selected_values' includes the key of the provided Hash" do

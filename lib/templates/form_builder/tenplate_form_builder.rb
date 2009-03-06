@@ -32,7 +32,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   def text_field(object_method , options={})
     label_html_attributes = label_attributes(object_method, options.delete(:label))
     tip = options.delete(:tip)
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
     @template.render :partial => "form_templates/text_field",
                      :locals => {:object_name => object_name,
@@ -50,7 +50,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   def text_field_tag(name, options={})
     label_html_attributes = label_attributes(name, options.delete(:label))
     tip = options.delete(:tip)
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
     @template.render :partial => "form_templates/text_field",
                      :locals  => {:name       => name,
@@ -70,11 +70,11 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:scoped_by_object)
     part_of_group        = options.delete(:part_of_group) == true
     label_text           = options[:label] && options[:label][:text] ? options[:label].delete(:text) : name.to_s.titleize
-    label_for            = options.delete(:label_for) || name
+    label_for            = options[:label] && options[:label][:for]  ? options[:label].delete(:for) : name
     selected_state       = options.delete(:selected) == true
     checked_value        = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
     unchecked_value      = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/check_box',
@@ -94,12 +94,12 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     options.delete(:label_method)
     options.delete(:value_method)
     label_text      = options[:label] && options[:label][:text] ? options[:label].delete(:text) : object_method.to_s.titleize
-    label_for       = options.delete(:label_for) || object_method
+    label_for       = options[:label] && options[:label][:for]  ? options[:label].delete(:for) : object_method
     checked_value   = options[:checked_value].nil? ? "1" : options.delete(:checked_value)
     unchecked_value = options[:unchecked_value].nil? ? "0" : options.delete(:unchecked_value)
     part_of_group   = options.delete(:part_of_group) == true
     selected_state  = options.delete(:selected) == true
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/check_box',
@@ -137,7 +137,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     field_name, label_text = checkboxable_object.is_a?(Hash) ? checkboxable_object.to_a.flatten : checkboxable_object
     if !field_name.is_a?(ActiveRecord::Base) && object.respond_to?(field_name)
       selected = Array(selected_values).include?(field_name)
-      check_box(field_name, :label => label_text,
+      check_box(field_name, :label => {:text => label_text},
                             :selected => selected,
                             :part_of_group => part_of_group,
                             :checked_value => checked_value,
@@ -165,10 +165,9 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
         options.delete(:value_method)
       end
 
-      check_box_tag(field_name, options.merge({:label           => label_text,
+      check_box_tag(field_name, options.merge({:label           => {:text => label_text, :for => checkboxable_object_id},
                                                :id              => checkboxable_object_id,
-                                               :label_for       => checkboxable_object_id,
-                                               :selected        => selected_values.include?(field_name),
+                                               :selected        => selected_values.include?(checked_value),
                                                :checked_value   => checked_value,
                                                :unchecked_value => unchecked_value,
                                                :part_of_group   => part_of_group}))
@@ -201,7 +200,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
   def text_area_tag(name, options = {})
     label_html_attributes = label_attributes(name, options.delete(:label))
     tip = options.delete(:tip)
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/text_area',
@@ -221,7 +220,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     tip = options.delete(:tip)
     value_method = options.delete(:value_method) || :id
     label_method = options.delete(:label_method) || :id
-    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    supported_attributes = [:class, :id, :disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
     options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
 
     @template.render :partial => 'form_templates/text_area',
