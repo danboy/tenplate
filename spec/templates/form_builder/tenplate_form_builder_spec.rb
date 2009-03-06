@@ -38,6 +38,32 @@ describe TenplateFormBuilder do
     end
   end
 
+  shared_examples_for "Any scoped input accepting 'value_method' and 'label_method' attributes" do
+    [:value_method, :label_method].each do |attribute|
+      context "setting '#{attribute.to_s}'" do
+        it "passes the supplied value as '#{attribute.to_s}' for the view template" do
+          method_name = mock("#{attribute.to_s.humanize} name")
+          check_options_full :passed_in => {attribute => method_name}, :expected => {attribute => method_name}
+        end
+
+        it "passes :id as '#{attribute.to_s}' for the view template" do
+          check_options_full :passed_in => {}, :expected => {attribute => :id}
+        end
+      end
+    end
+  end
+
+  shared_examples_for "Any non-scoped input with a customizable value attribute" do
+    it "passes the specified value of options[:value] as 'value' for the view template" do
+      supplied_value = mock("Customized value for 'value'")
+      check_options_full :passed_in => {:value => supplied_value}, :expected => {:value => supplied_value}
+    end
+
+    it "passes nil as 'value' for the view template when options[:value] not specified" do
+      check_options_full :passed_in => {}, :expected => {:value => nil}
+    end
+  end
+
   shared_examples_for "Any item rendered using the TenplateFormBuilder" do
     it "passes a reference to the TenplateFormBuilder" do
        check_options_full :passed_in => {}, :expected => {:builder => @builder}
@@ -105,6 +131,13 @@ describe TenplateFormBuilder do
         supplied_value = mock("User specified value")
         check_options_full :passed_in => {html_attribute => supplied_value}, :expected => {:options => {html_attribute => supplied_value}}
       end
+    end
+  end
+
+  shared_examples_for "Any tipable input type" do
+    it "should pass the value of options[:tip] directly through as :tip" do
+      custom_tip = "Custom tip"
+      check_options_full :passed_in => {:tip => custom_tip}, :expected => {:tip => custom_tip}
     end
   end
 
@@ -195,6 +228,7 @@ describe TenplateFormBuilder do
   context "rendering a textfield" do
     context "by calling 'text_field_tag'" do
       it_should_behave_like "Any non-scoped field"
+      it_should_behave_like "Any tipable input type"
 
       context "without any options" do
         {:name => :first_name,
@@ -220,14 +254,7 @@ describe TenplateFormBuilder do
         it_should_behave_like "Any labeled input type"
         it_should_behave_like "Any self-cleaning input type"
       end
-  
-       it "should pass the value of options[:tip] directly through as :tip" do
-         custom_tip = "Custom tip"
-         expected_render_arguments = hash_including(:locals => hash_including(:tip => custom_tip))
-         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
-         @builder.text_field_tag(:first_name, :tip => custom_tip).should_not raise_error
-       end
-     
+
       it "renders the 'text_field' partial" do
         expected_render_arguments = hash_including(:partial => "form_templates/text_field")
         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
@@ -243,14 +270,14 @@ describe TenplateFormBuilder do
 
       it_should_behave_like "Any scoped field"
       it_should_behave_like "Any item rendered using the TenplateFormBuilder"
-        
+
       it "should pass the value of options[:tip] directly through as :tip" do
         custom_tip = "Custom tip"
         expected_render_arguments = hash_including(:locals => hash_including(:tip => custom_tip))
         @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
         @builder.text_field(:first_name, :tip => custom_tip).should_not raise_error
       end
-        
+
       context "without any options" do
         {:object_method => :first_name,
          :label_text => 'First Name',
@@ -282,6 +309,51 @@ describe TenplateFormBuilder do
           @builder.text_field_tag(:first_name).should_not raise_error
         end
       end
+    end
+  end
+
+  context 'rendering a textarea' do
+    context "by calling 'text_area'" do
+      def check_options_full(options = {})
+        @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
+        @builder.text_area(:biography, options[:passed_in]).should_not raise_error
+      end
+
+      it "renders the 'form_templates/text_area' view template"  do
+        @template.should_receive(:render).with(hash_including({:partial => "form_templates/text_area"})).and_return(lambda {"Template rendered"})
+        @builder.text_area(:biography).should_not raise_error
+      end
+
+      it "passes the object bound to the form as :object_name to the view template" do
+        check_options_full :passed_in => {}, :expected => {:object_name => @object}
+      end
+
+      it_should_behave_like "Any scoped field"
+      it_should_behave_like "Any item rendered using the TenplateFormBuilder"
+      it_should_behave_like "Any self-cleaning input type"
+      it_should_behave_like "Any labeled input type"
+      it_should_behave_like "Any tipable input type"
+      it_should_behave_like "Any scoped input accepting 'value_method' and 'label_method' attributes"
+    end
+
+    context "by calling 'text_area_tag'" do
+      def check_options_full(options = {})
+        @template.should_receive(:render).with(hash_including(:locals => hash_including(options[:expected]))).and_return(lambda {"Template rendered"})
+        @builder.text_area_tag(:biography, options[:passed_in]).should_not raise_error
+      end
+
+      it "renders the text_area view template with 'name' set to ':biography'"  do
+        expected_render_arguments = hash_including(:partial => "form_templates/text_area", :locals => hash_including(:name => :biography))
+        @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+        @builder.text_area_tag(:biography).should_not raise_error
+      end
+
+      it_should_behave_like "Any non-scoped field"
+      it_should_behave_like "Any item rendered using the TenplateFormBuilder"
+      it_should_behave_like "Any self-cleaning input type"
+      it_should_behave_like "Any labeled input type"
+      it_should_behave_like "Any tipable input type"
+      it_should_behave_like "Any non-scoped input with a customizable value attribute"
     end
   end
 

@@ -21,7 +21,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
       end
     end
   end
-  
+
   def label_attributes(object_method, label_hash={})
     label_hash ||= {}
     label_html_attributes = { :text  => label_hash.delete(:text) || object_method.to_s.titleize,
@@ -196,6 +196,46 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
     radio_html = @template.radio_button(@object_name, attribute, tag_value, objectify_options(options))
     label_html = label(attribute, hash_or_string, label_options.merge(:for => associated_element_id))
     radio_html + label_html
+  end
+
+  def text_area_tag(name, options = {})
+    label_html_attributes = label_attributes(name, options.delete(:label))
+    tip = options.delete(:tip)
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
+
+    @template.render :partial => 'form_templates/text_area',
+                     :locals  => {:name                => name,
+                                  :value               => options[:value],
+                                  :label_text          => label_html_attributes[:text],
+                                  :label_for           => label_html_attributes[:for],
+                                  :tip                 => tip,
+                                  :builder             => self,
+                                  :scoped_by_object    => false,
+                                  :options             => options
+                                 }
+  end
+
+  def text_area(object_method, options = {})
+    label_html_attributes = label_attributes(object_method, options.delete(:label))
+    tip = options.delete(:tip)
+    value_method = options.delete(:value_method) || :id
+    label_method = options.delete(:label_method) || :id
+    supported_attributes = [:disabled, :size, :alt, :tabindex, :accesskey, :onfocus, :onblur, :onselect, :onchange, :value]
+    options.delete_if {|attribute_name, attribute_value| !supported_attributes.include?(attribute_name.to_sym)}
+
+    @template.render :partial => 'form_templates/text_area',
+                     :locals  => {:object_name         => object_name,
+                                  :object_method       => object_method,
+                                  :value_method        => value_method,
+                                  :label_method        => label_method,
+                                  :label_text          => label_html_attributes[:text],
+                                  :label_for           => label_html_attributes[:for],
+                                  :tip                 => tip,
+                                  :builder             => self,
+                                  :scoped_by_object    => true,
+                                  :options             => options
+                                 }
   end
 
   def label(attribute, hash_or_string, options = {})
