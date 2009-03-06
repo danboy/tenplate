@@ -164,10 +164,11 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
         checked_value = checkboxable_object.send(options[:value_method])
         options.delete(:value_method)
       end
+      selected_value = Array(selected_values).include?(field_name) || Array(selected_values).include?(checked_value)
 
       check_box_tag(field_name, options.merge({:label           => {:text => label_text, :for => checkboxable_object_id},
                                                :id              => checkboxable_object_id,
-                                               :selected        => selected_values.include?(checked_value),
+                                               :selected        => selected_value,
                                                :checked_value   => checked_value,
                                                :unchecked_value => unchecked_value,
                                                :part_of_group   => part_of_group}))
