@@ -1,0 +1,5 @@
+%div.radio
+  %h2= title
+  %ul
+    - for item in items
+      %li= builder.radio_button field, item, :selected_item => selected_item

@@ -1,6 +1,7 @@
 .form_field_with_error
   = label
-  .label_note.quiet= tip
+  - unless tip.blank?
+    .tip.quiet= tip
   = element
   .error
     = error
