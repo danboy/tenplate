@@ -5,7 +5,7 @@ end
 
 describe TenplateFormBuilder do
   before(:each) do
-    @object = mock("A Person object")
+    @object = mock("A Person object", :first_name => "John", :admin => true)
     @object_name = @object
     @template = mock("View template object")
     @builder = TenplateFormBuilder.new @object, @object_name, @template, {}, nil
@@ -284,13 +284,21 @@ describe TenplateFormBuilder do
          :label_for => :first_name,
          :scoped_by_object => true,
          :tip => nil,
-         :value => nil,
+         :value => "John",
          :options => {}
         }.each_pair do |key, value|
           it "renders the template with '#{key}' set to '#{value}'"  do
             expected_render_arguments = hash_including(:partial => "form_templates/text_field", :locals => hash_including(key => value))
             @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
             @builder.text_field(:first_name).should_not raise_error
+          end
+        end
+
+        context "with an invalid method_name" do
+          it "renders an empty textfield" do
+            expected_render_arguments = hash_including(:locals => hash_including(:value => nil))
+            @template.should_receive(:render).with(expected_render_arguments).and_return(lambda {"Template rendered"})
+            @builder.text_field(:invalid_field_name).should_not raise_error
           end
         end
 
@@ -333,7 +341,14 @@ describe TenplateFormBuilder do
       it_should_behave_like "Any self-cleaning input type"
       it_should_behave_like "Any labeled input type"
       it_should_behave_like "Any tipable input type"
-      it_should_behave_like "Any scoped input accepting 'value_method' and 'label_method' attributes"
+
+      it "passes ':biography' as the 'value_method' to the view template" do
+        check_options_full :passed_in => {}, :expected => {:value_method => :biography}
+      end
+
+      it "passes ':biography' as the 'label_method' to the view template" do
+        check_options_full :passed_in => {}, :expected => {:label_method => :biography}
+      end
     end
 
     context "by calling 'text_area_tag'" do
@@ -482,9 +497,10 @@ describe TenplateFormBuilder do
           end
         end
 
-        context "setting 'selected'" do
-          before(:each) {testing_option :selected, :selected_state}
-          it_should_behave_like "Any boolean option"
+        context "setting 'selected' to true" do
+          it "passes a 'selected_state' of 'checked' to the view template" do
+            check_options_full :passed_in => {:selected => true}, :expected => {:selected_state => "checked"}
+          end
         end
 
         context "setting 'part_of_group'" do
@@ -737,7 +753,7 @@ describe TenplateFormBuilder do
         @builder.check_box(@hash_of_roles, validations[:passed_in]).should_not raise_error
       end
 
-      {:selected => false,
+      {:selected => true,
        :part_of_group => false,
        :checked_value => 1,
        :unchecked_value => 0
