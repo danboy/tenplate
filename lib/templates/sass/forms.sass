@@ -6,35 +6,51 @@ form
   textarea,
   select
     :font-family inherit
-    :font-size= !font_size
-    :height= !line_height-.2em
+    :font-size= !font_size+"em"
+    :height= !line_height - .2+"em"
+    :border .1em solid #900
     :font-weight inherit
-    :margin= (!line_height/!font_size) 0
-    :border= .1em solid !link_color
-  label
+    :margin= 0 0 (!line_height/!font_size)+"em "
+    :border= .1em "solid" !link_color
+  label,
+  h2
     :font-weight bold
-    :font-size= !font_size
+    :font-size= !font_size+"em"
     :clear both
     :display block
-    :margin= 0 0 (-(!line_height/!font_size))
+    :margin 0
+  .label_note
+    :margin= (-!line_height/!font_size)+"em " 0 (!line_height/!font_size)+"em"
   .radio label,
   .checkbox label,
   label.checkbox,
   label.radio
     :display inline-block
-    :margin= (!line_height/!font_size) 0
+    :margin= (!line_height/!font_size)+"em" 0
+  div.radio,
+  div.checkbox
+    h2
+      :margin-bottom 0
+    ul
+      :margin= (!line_height/2)+em 0 0
+      li
+        :list-style none !important
+        label
+          :margin 0
   input[type="checkbox"]
     :display inline-block
   input[type="submit"],
   input[type="button"]
-    :height= !line_height
+    :height= !line_height+"em"
   ul,
   ol
     li
+      :list-style none
       :margin 0
       label
         :width auto
         :font-size 1em
+        :margin 0
   div
     .multi_select,
     .read_only
@@ -42,16 +58,16 @@ form
       :display inline-block
       select
         :margin 0
-        
 fieldset
-  :margin= (!line_height/!font_size) 0 (!line_height/!font_size) (-!font_size)
-  :padding= 0 !line_height
+  :margin= (!line_height/!font_size)+"em" 0 (!line_height/!font_size)+"em "  -!font_size+"em"
+  :padding= !line_height+"em"
   :border 1px solid #ccc
+  /+rounded
   legend
-    :font-size= !font_size
+    :font-size= !font_size+"em"
     :font-weight bold
   fieldset
-    :margin= !font_size
+    :margin= !font_size+"em"
 
 form.justify
   fieldset
@@ -110,4 +126,8 @@ form.justify
   select
     :margin 0 0 0 30%
 
-
+p
+  label,
+  input,
+  textarea
+    :font-size 1em

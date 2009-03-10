@@ -1,102 +1,146 @@
 !font_color ||= #333
 !base_font ||= "helvetica,arial,sans-serif"
 !headline_font ||= !base_font
-!font_size ||= 1.6em
+!font_size ||= 1.6
 !background_color ||= #FFF
 !page_color ||= #FFF
 !link_color ||= #369
-!line_height ||= 1.8em
-!grid_width ||= 96em
-!page_padding ||= 1em
+!line_height ||= 1.8
+!grid_width ||= 96
+!page_padding ||= 2
+!border_color ||= !link_color
+!border_size ||= 0
+!border_style ||= "none"
+!border_radius ||= .2
 
-html
-  :color= !font_color
-  :background = !background_color
-  :font-size 16px
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td
+//Rounding
+=round_top
+  :-moz-border-radius-topleft= !border_radius+"em"
+  :-moz-border-radius-topright= !border_radius+"em"
+  :-khtml-border-top-right-radius= !border_radius+"em"
+  :-khtml-border-top-left-radius= !border_radius+"em"
+  :-webkit-border-top-right-radius= !border_radius+"em"
+  :-webkit-border-top-left-radius= !border_radius+"em"
+=rounded
+  :-moz-border-radius= !border_radius+"em"
+  :-webkit-border-radius= !border_radius+"em"
+  :-khtml-border-radius= !border_radius+"em"
+
+// Global reset rules.
+// For more specific resets, use the reset mixins provided below
+=global-reset
+  html, body
+    +reset
+  +nested-reset
+
+// Reset all elements within some selector scope.To reset the selector itself,
+// mixin the appropriate reset mixin for that element type as well. This could be
+// useful if you want to style a part of your page in a dramatically different way.
+=nested-reset
+  div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
+  pre, a, abbr, acronym, address, code, del, dfn, em, img,
+  dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, tbody, tfoot, thead, tr
+    +reset
+  blockquote, q
+    +reset-quotation
+  th, td, caption
+    +reset-table-cell
+  table
+    +reset-table
+  a img
+    :border none
+
+=reset-box-model
   :margin 0
   :padding 0
-
-table
-  :border-collapse collapse
-  :border-spacing 0
-
-fieldset, img
   :border 0
 
-address,caption,cite,code,dfn,em,strong,th,var
-  :style normal
-  :weight normal
+=reset
+  +reset-box-model
+  :font
+    :weight inherit
+    :style inherit
+    :size 100%
+    :family inherit
+  :vertical-align baseline
 
-li
-  :list-style none
+=reset-quotation
+  +reset
+  :quotes "" ""
+  &:before,
+  &:after
+    :content ""
 
-caption, th
+=reset-table-cell
+  +reset
   :text-align left
+  :font-weight normal
+  :vertical-align middle
 
-h1,h2,h3,h4,h5,h6
-  :font-size inherit
-  :font-weight bold
-  :font-family= !headline_font
-
-q:before, q:after
-  :content ''
-
-abbr,acronym
-  :border 0
-  :font-variant normal
-
-sup
-  :vertical-align text-top
-sub
-  :vertical-align text-bottom
-
-a
-  :outline none
-  :color= !link_color
-  :text-decoration none
-a:hover
-  :text-decoration underline
-
+=reset-table
+  +reset
+  :border-collapse separate
+  :border-spacing 0
+  :vertical-align middle
 body
   :font-size 62.5%
   :color= !font_color
   :font-family= !base_font
-  :line-height= !line_height
-
+  :line-height= !line_height+"em"
+  :background-color= !background_color
   h1
-    :font-size= !font_size + .6em
-    :margin= (!line_height/(!font_size + .6em)) 0
+    :font-size= !font_size + .6+"em"
+    :margin= (!line_height/(!font_size + .6))+"em" 0
   h2
-    :font-size= !font_size + .4em
-    :margin= (!line_height/(!font_size + .4em)) 0
+    :font-size= !font_size + .4+"em"
+    :margin= (!line_height/(!font_size + .4))+"em" 0
   h3
-    :font-size= !font_size + .2em
-    :margin-bottom= -(!line_height/(!font_size + .2em))
+    :font-size= !font_size + .2+"em"
+    :margin-bottom= -(!line_height/(!font_size + .2))+"em"
   h4
-    :font-size= !font_size + .1em
-    :margin-top= !line_height/(!font_size + .1em)
-    :margin-bottom= -(!line_height/(!font_size + .1em))
-  p
-    :font-size= !font_size
-    :margin= (!line_height/!font_size) 0
+    :font-size= !font_size + .1+"em"
+    :margin-top= !line_height/(!font_size + .1)+"em"
+    :margin-bottom= -(!line_height/(!font_size + .1))+"em"
+  h5
+    :font-size= !font_size+"em"
+    :margin-top= !line_height/(!font_size)+"em"
+  p,
+  td,
+  th
+    :font-size= !font_size+"em"
+    :margin= (!line_height/!font_size)+"em" 0
+    p,
+    th,
+    td,
+    input,
+    label
+      :font-size 1em
+      :margin 0
+  a
+    :color= !link_color
+    :text-decoration none
+    &:hover
+      :text-decoration underline
   ul,
   ol
     :display block
-    :font-size= !font_size
+    :font-size= !font_size+"em"
     :margin 0
+    :padding 0
     li
-      :margin= !line_height/1.4em 0
+      :margin= !line_height/1.4+"em" 0
+      :list-style none
       ul,
       ol,
-      p
+      p,
+      *
         :font-size 1em
   pre.example
-    :border 1px solid #900
+    :border .1em solid #900
     :background #333
     :color #EEE
-    :font-size= !font_size
-    :margin= (!line_height/!font_size)-.1em 0
+    :font-size= !font_size+"em"
+    :margin= (!line_height/!font_size)+"em" 0
     :display block
     :white-space pre-wrap       /* css-3 */
     :white-space -moz-pre-wrap  /* Mozilla, since 1999 */
@@ -110,7 +154,7 @@ body
   #notices
     :width auto
     :background-color #FFE6D4
-    :font-size= !font_size
+    :font-size= !font_size+"em"
     :padding 0
     :border-bottom 1px solid #999
     .flash-notice
@@ -121,7 +165,36 @@ body
       :background-color #b73b29
       :color #DDD
       :padding 1em
+  #Growler
+    :width= !grid_width+"em"
+    :margin= 0 "auto"
+    .Growler-notice,
+    .error
+      :background #333
+      :width 90%
+      :padding= !page_padding/2+"em"
+      :margin= 0 "auto" !page_padding/2+"em" "auto"
+      :color #FFF
+      :font-size= !font_size+"em"
+      +rounded
+      :-moz-order-radius .4em
+      :-khtm-border-radius .4em
+      h2,
+      p,
+      ul,
+      li
+        :font-size 1em
 //CLEARFIX
+=clearfix
+  display: inline-block
+  &:after
+    content: "."
+    height: 0
+    clear: both
+    visibility: hidden
+  * html &
+    height: 1px
+
 .group
   :display inline-block
   &:after
@@ -149,5 +222,3 @@ html[xmlns] .group
   :width 100%
   :height 100%
   :filter alpha(opacity=50)
-@import forms.sass
-@import grid.sass
