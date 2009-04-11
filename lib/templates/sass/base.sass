@@ -139,8 +139,9 @@ body
     :display block
     :margin 0
     :padding 0
+    :font-size 1em
     li
-      :margin= !line_height/1.4+"em" 0
+      :margin= !line_height/!font_size+"em" 0
       :list-style none
       :font-size= !font_size+"em"
       ul,
@@ -178,23 +179,6 @@ body
       :background-color #b73b29
       :color #DDD
       :padding 1em
-  #Growler
-    :width= !grid_width+"em"
-    :margin= 0 "auto"
-    .Growler-notice,
-    .error
-      :background #333
-      :width 90%
-      :padding= !page_padding/2+"em"
-      :margin= 0 "auto" !page_padding/2+"em" "auto"
-      :color #FFF
-      :font-size= !font_size+"em"
-      +rounded
-      h2,
-      p,
-      ul,
-      li
-        :font-size 1em
 //CLEARFIX
 =clearfix
   display: inline-block
