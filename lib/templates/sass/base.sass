@@ -6,13 +6,12 @@
 !page_color ||= #FFF
 !link_color ||= #369
 !line_height ||= 1.8
-!grid_width ||= 96
 !page_padding ||= 2
 !border_color ||= !link_color
 !border_size ||= 0
 !border_style ||= "none"
 !border_radius ||= .2
-
+!grid_width ||= !width/10
 //Rounding
 =round_top
   :-moz-border-radius-topleft= !border_radius+"em"
@@ -217,15 +216,11 @@ body
     :line-height 0
     :height 0
 
-html[xmlns] .group
-  :display block
 * html,
 * html body
   :height 100%
   :overflow auto
 
-* html .group
-  :height 1%
 * html #overlay,
 * html #modal
   :position absolute

@@ -21,7 +21,9 @@
 #grid,
 .grid
   :width= !grid+"em"
-  :padding= !page_padding/2+"em"
+  :padding= 0 !page_padding/2+"em"
+  +clearfix
+  :display block
   * html &
     :width= (!grid+(!page_padding*2))+"em"
 .one_third, .two_thirds, .main, .column_one, .rail, .column, .two_quarters, .three_quarters, .half_column, .two_thirds
