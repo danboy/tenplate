@@ -21,6 +21,13 @@
   :-khtml-border-top-left-radius= !border_radius+"em"
   :-webkit-border-top-right-radius= !border_radius+"em"
   :-webkit-border-top-left-radius= !border_radius+"em"
+=round_bottom
+  :-moz-border-radius-bottomleft= !border_radius+"em"
+  :-moz-border-radius-bottomright= !border_radius+"em"
+  :-khtml-border-bottom-right-radius= !border_radius+"em"
+  :-khtml-border-bottom-left-radius= !border_radius+"em"
+  :-webkit-border-bottom-right-radius= !border_radius+"em"
+  :-webkit-border-bottom-left-radius= !border_radius+"em"
 =rounded
   :-moz-border-radius= !border_radius+"em"
   :-webkit-border-radius= !border_radius+"em"
@@ -31,6 +38,7 @@
 =global-reset
   html, body
     +reset
+    :font-size 16px
   +nested-reset
 
 // Reset all elements within some selector scope.To reset the selector itself,
@@ -82,12 +90,18 @@
   :border-collapse separate
   :border-spacing 0
   :vertical-align middle
++global-reset
 body
   :font-size 62.5%
   :color= !font_color
   :font-family= !base_font
   :line-height= !line_height+"em"
   :background-color= !background_color
+  h1,
+  h2,
+  h3,
+  h4
+    :text-transform capitalize
   h1
     :font-size= !font_size + .6+"em"
     :margin= (!line_height/(!font_size + .6))+"em" 0
@@ -124,12 +138,12 @@ body
   ul,
   ol
     :display block
-    :font-size= !font_size+"em"
     :margin 0
     :padding 0
     li
       :margin= !line_height/1.4+"em" 0
       :list-style none
+      :font-size= !font_size+"em"
       ul,
       ol,
       p,
@@ -177,8 +191,6 @@ body
       :color #FFF
       :font-size= !font_size+"em"
       +rounded
-      :-moz-order-radius .4em
-      :-khtm-border-radius .4em
       h2,
       p,
       ul,

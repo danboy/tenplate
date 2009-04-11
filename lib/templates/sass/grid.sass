@@ -8,6 +8,8 @@
   :border= !border_size+"em" !border_style !border_color
   +rounded
   +clearfix
+  * html &
+    /:width= (!col_size)+(!border_size*2)+"em"
 
 =grid_list
   :display -moz-inline-stack
@@ -20,6 +22,8 @@
 .grid
   :width= !grid+"em"
   :padding= !page_padding/2+"em"
+  * html &
+    :width= (!grid+(!page_padding*2))+"em"
 .one_third, .two_thirds, .main, .column_one, .rail, .column, .two_quarters, .three_quarters, .half_column, .two_thirds
   :float left
   :margin auto
@@ -46,7 +50,6 @@
   .rail,
   .column_two
     +column_calc((!grid-!golden_column))
-
 .quarters
   .column,
   .rail

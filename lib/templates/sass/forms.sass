@@ -11,7 +11,10 @@ form
     :border .1em solid #900
     :font-weight inherit
     :margin= 0 0 (!line_height/!font_size)+"em "
-    :border= .1em "solid" !link_color
+    :border= ".1em solid" !link_color
+  textarea
+    :height= ((!line_height - .2)*5)+"em"
+    :width 100%
   label,
   h2
     :font-weight bold
@@ -27,18 +30,22 @@ form
   label.radio
     :display inline-block
     :margin= (!line_height/!font_size)+"em" 0
+    :width 90%
   div.radio,
   div.checkbox
     h2
       :margin-bottom 0
     ul
-      :margin= (!line_height/2)+em 0 0
+      :margin= (!line_height/2)+"em" 0 0
       li
         :list-style none !important
+        :margin-bottom= !page_padding/2+"em"
         label
           :margin 0
   input[type="checkbox"]
     :display inline-block
+  input[type="radio"]
+    :vertical-align top
   input[type="submit"],
   input[type="button"]
     :height= !line_height+"em"
