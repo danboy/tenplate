@@ -101,12 +101,13 @@ body
   h3,
   h4
     :text-transform capitalize
+    :font-weight bold
   h1
     :font-size= !font_size + .6+"em"
     :margin= (!line_height/(!font_size + .6))+"em" 0
   h2
-    :font-size= !font_size + .4+"em"
-    :margin= (!line_height/(!font_size + .4))+"em" 0
+    :font-size= !font_size + .3+"em"
+    :margin= (!line_height/(!font_size + .3))+"em" 0
   h3
     :font-size= !font_size + .2+"em"
     :margin-bottom= -(!line_height/(!font_size + .2))+"em"
@@ -144,11 +145,14 @@ body
       :margin= !line_height/!font_size+"em" 0
       :list-style none
       :font-size= !font_size+"em"
+      :list-style circle outside
       ul,
       ol,
       p,
       *
         :font-size 1em
+  blockquote
+    :margin= 0 (!page_padding*4)+"em"
   pre.example
     :border .1em solid #900
     :background #333
