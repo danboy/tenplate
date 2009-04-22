@@ -26,8 +26,7 @@ Remember, the main power of tenplate comes from using POSH html, so use the chec
 
     Begin example layout:
 
-      - if !ie?
-        !!! XML
+      !!! XML
       !!! Strict
       %html
         %head
@@ -36,13 +35,8 @@ Remember, the main power of tenplate comes from using POSH html, so use the chec
         %body
           #grid
             = yield
-          - # include javascript
+
           = javascript_include_tag :all
-          = yield :javascript
-          :javascript
-            document.observe("dom:loaded",function(ev){
-              #{yield :onReady}
-            });
 
     End Example layout
 
