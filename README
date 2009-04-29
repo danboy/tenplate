@@ -11,6 +11,8 @@ cd into your rails app and run TENPLATE_ROOT/bin/tenplate
 =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 Tenplate SASS Usage
 =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+!IMPORTANT!
+tenplate requires HAML/SASS 2.1 get it here http://github.com/nex3/haml/tree/master
 
 Remember, the main power of tenplate comes from using POSH html, so use the checklist at http://microformats.org/wiki/posh
 
