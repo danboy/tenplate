@@ -1,12 +1,13 @@
 !grid = !grid_width-(!page_padding+(!border_size*2))
 !golden_column ||= (!grid/1.6180339887498948482)
-
-=column_calc(!col_size)
+=column_calc(!col_size, !drop_shadow = false)
   :width= (!col_size)-(!page_padding*2)+(!border_size*2)+"em"
   :padding= !page_padding/2+"em"
   :margin= (!page_padding/2)+"em"
   :border= !border_size+"em" !border_style !border_color
   +rounded
+  @if !drop_shadow
+    +drop-shadow
   +clearfix
   * html &
     /:width= (!col_size)+(!border_size*2)+"em"
@@ -31,35 +32,35 @@
   :margin auto
 .page,
 .full_page
-  +column_calc(!grid)
+  +column_calc(!grid, !drop_shadow)
 
 .thirds
   .two_thirds,
   .main,
   .column_one
-    +column_calc((!grid/3)*2)
+    +column_calc((!grid/3)*2, !drop_shadow)
 
   .one_third,
   .main,
   .column_one,
   .column
-    +column_calc(!grid/3)
+    +column_calc(!grid/3, !drop_shadow)
 
 .golden
   .main,
   .column_one
-    +column_calc(!golden_column)
+    +column_calc(!golden_column, !drop_shadow)
   .rail,
   .column_two
-    +column_calc((!grid-!golden_column))
+    +column_calc((!grid-!golden_column), !drop_shadow)
 .quarters
   .column,
   .rail
-    +column_calc(!grid/4)
+    +column_calc(!grid/4, !drop_shadow)
   .main,
   .three_quarters
-    +column_calc((!grid/4)*3)
+    +column_calc((!grid/4)*3, !drop_shadow)
   .two_quarters
-    +column_calc(!grid/2)
+    +column_calc(!grid/2, !drop_shadow)
   .half_column
-    +column_calc((!grid)/8)
+    +column_calc((!grid)/8, !drop_shadow)
