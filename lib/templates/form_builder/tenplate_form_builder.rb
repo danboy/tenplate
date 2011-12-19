@@ -187,7 +187,7 @@ class TenplateFormBuilder < ActionView::Helpers::FormBuilder
                      :locals => {:title => title, :items => items, :field => field, :builder => self, :selected_item => selected_item}
   end
 
-  # Generates a radio button & associated label for the supplied attribute of the 
+  # Generates a radio button & associated label for the supplied attribute of the
   # given object.
   def radio_button(attribute, hash_or_string, options = {})
     tag_value         = value_for(hash_or_string)
