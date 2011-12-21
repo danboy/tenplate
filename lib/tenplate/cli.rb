@@ -65,7 +65,7 @@ application_helper.rb file:
     options = args.detect {|argument| argument.is_a?(Hash)}
     if options.nil?
       options = {:builder => TenplateFormBuilder}
-      args << options 
+      args << options
     end
     options[:builder] = TenplateFormBuilder unless options.nil?
 
