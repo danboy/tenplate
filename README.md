@@ -84,4 +84,4 @@ div
 COPYRIGHT
 =========
 
-Copyright (c) 2008 Dan Nawara. See LICENSE for details.
+Copyright (c) 2008 Dan Nawara. See [LICENSE](https://github.com/danboy/tenplate/blob/master/LICENSE) for details.
