@@ -11,15 +11,16 @@ Tenplate SASS Usage
 ===================
 
 !IMPORTANT!
-tenplate requires HAML/SASS 2.1 get it here http://github.com/nex3/haml/tree/master
 
-Remember, the main power of tenplate comes from using POSH html, so use the checklist at http://microformats.org/wiki/posh
+tenplate requires HAML/SASS 2.1 get it [here](http://github.com/nex3/haml/tree/master)
+
+Remember, the main power of tenplate comes from using POSH html, so use the checklist at [Wiki](http://microformats.org/wiki/posh)
 
 1 -  Make sure you have HAML > 2.3 installed
 
 2 -  Copy the tenplate sass files to your project
 
-/home/you/your/project$ /path/to/tenplate/gem/bin/tenplate
+`/home/you/your/project$ /path/to/tenplate/gem/bin/tenplate`
 
 3 -  Add tenplate to your HAML template file
 
