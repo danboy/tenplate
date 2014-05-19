@@ -1,0 +1,19 @@
+{
+  "name": "tenplate",
+  "version": "0.0.1",
+  "description": "Some helpers for express",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danboy/tenplate"
+  },
+  "author": "Dan Nawara",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danboy/tenplate/issues"
+  },
+  "homepage": "https://github.com/danboy/tenplate"
+}
