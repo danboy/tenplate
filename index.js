@@ -58,6 +58,19 @@ var self = {
       a[attrname] = b[attrname];
     }
     return a;
+  },
+  init: function(options){
+    var folders = self.getFolders(options.path);
+    router.use('/', require(`${options.path}/routes.js`));
+    folders.forEach(function(folder){
+      router.use(`/${folder}`, require(`${options.path}/${folder}/routes.js`));
+    });
+    return router;
+  },
+  getFolders: function(srcpath){
+    return fs.readdirSync(srcpath).filter(
+          file => fs.statSync(path.join(srcpath, file)).isDirectory()
+        );
   }
 };
 
