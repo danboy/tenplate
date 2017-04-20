@@ -2,18 +2,19 @@ var fs = require('fs');
 var self = {
   controllers: function(options){
     var path = (options && options.path) ? options.path : __dirname+'/../../app/controllers/';
-    
+
     options = Object.assign({
       path : path 
     }, options);
 
     var files = fs.readdirSync(options.path),
-        Controllers = {};
+    Controllers = {};
 
     files.forEach(function(controller){
       if (controller === "index.js" || controller.substr(controller.lastIndexOf('.') + 1) !== 'js')
         return;
-      var name = controller.charAt(0).toUpperCase()+controller.replace('.js', '').replace('Controller','').slice(1);
+      var name = controller.charAt(0).toUpperCase()+self.camelize(controller).replace('.js', '').replace('Controller','').slice(1);
+      console.log("NAME:::\n", name);
       var c = require(options.path+controller);
       Controllers[name] = c;
     });
@@ -26,7 +27,7 @@ var self = {
     }, options);
 
     var files = fs.readdirSync(options.path),
-        Controllers = {};
+    Controllers = {};
 
     files.forEach(function(controller){
       if (controller === "index.js" || controller.substr(controller.lastIndexOf('.') + 1) !== 'js')
@@ -40,7 +41,7 @@ var self = {
   },
   locals: function(app){
     var path = __dirname+'/../../app/helpers/',
-        files = fs.readdirSync(path);
+    files = fs.readdirSync(path);
 
     files.forEach(function(controller){
       if (controller === "index.js" || controller.substr(controller.lastIndexOf('.') + 1) !== 'js')
@@ -69,8 +70,13 @@ var self = {
   },
   getFolders: function(srcpath){
     return fs.readdirSync(srcpath).filter(
-          file => fs.statSync(path.join(srcpath, file)).isDirectory()
+        file => fs.statSync(path.join(srcpath, file)).isDirectory()
         );
+  },
+  camelize: (str) => {
+    return (str + "").replace(/_\D/g, function(match) {
+      return match.charAt(1).toUpperCase();
+    });
   }
 };
 

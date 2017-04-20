@@ -1,6 +1,6 @@
 {
   "name": "tenplate",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Some helpers for express",
   "main": "index.js",
   "scripts": {
