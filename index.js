@@ -14,7 +14,6 @@ var self = {
       if (controller === "index.js" || controller.substr(controller.lastIndexOf('.') + 1) !== 'js')
         return;
       var name = controller.charAt(0).toUpperCase()+self.camelize(controller).replace('.js', '').replace('Controller','').slice(1);
-      console.log("NAME:::\n", name);
       var c = require(options.path+controller);
       Controllers[name] = c;
     });
